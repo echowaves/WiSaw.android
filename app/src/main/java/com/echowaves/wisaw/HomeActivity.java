@@ -13,6 +13,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.StrictMode;
 import android.provider.MediaStore;
+import android.provider.Settings;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -39,6 +40,7 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.UUID;
 
 import io.nlopez.smartlocation.OnLocationUpdatedListener;
 import io.nlopez.smartlocation.SmartLocation;
@@ -64,6 +66,10 @@ public class HomeActivity extends AppCompatActivity {
 
     private String mCurrentPhotoPath;
 
+
+    String uuid;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -86,6 +92,11 @@ public class HomeActivity extends AppCompatActivity {
         gridView.setAdapter(gridAdapter);
 
 
+        String androidId = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
+
+        uuid = UUID.nameUUIDFromBytes(androidId.getBytes()).toString();
+
+        Log.d("++++++++++++++++++++++", "uuid: " + uuid);
 
         Dexter.withActivity(this)
                 .withPermission(Manifest.permission.ACCESS_COARSE_LOCATION)
@@ -93,7 +104,6 @@ public class HomeActivity extends AppCompatActivity {
                     @Override public void onPermissionGranted(PermissionGrantedResponse response) {
                         /* ... */
                         Log.d("++++++++++++++++++++++", "onPermissionGranted");
-
 
 //                        long mLocTrackingInterval = 1000 * 100; // 100 sec
 //                        float trackingDistance = 5000;
@@ -238,6 +248,67 @@ public class HomeActivity extends AppCompatActivity {
                         public void onScanCompleted(String path, Uri uri) {
                         }
                     });
+
+
+
+
+            JSONArray coordinatesJSON = new JSONArray();
+            JSONObject locationJSON = new JSONObject();
+            JSONObject parametersJSON = new JSONObject();
+            try {
+                coordinatesJSON.put(this.mLastLocation.getLatitude());
+                coordinatesJSON.put(this.mLastLocation.getLongitude());
+
+
+                locationJSON.put("type", "Point");
+                locationJSON.put("coordinates", coordinatesJSON);
+
+
+                parametersJSON.put("location", locationJSON);
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+
+
+            AndroidNetworking.post("https://www.wisaw.com/api/photos")
+                    .addJSONObjectBody(parametersJSON)
+                    .setContentType("application/json")
+                    .setPriority(Priority.MEDIUM)
+                    .build()
+                    .getAsJSONObject(new JSONObjectRequestListener() {
+                        @Override
+                        public void onResponse(JSONObject response) {
+                            // do anything with response
+
+
+                            try {
+                                photosJSON = response.getJSONArray("photos");
+
+//                            Log.d("++++++++++++++++++++++", photosJSON.toString());
+
+                                gridAdapter = new GridViewAdapter(context, R.layout.grid_item_layout, getData());
+                                gridView.setAdapter(gridAdapter);
+
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+
+                        }
+                        @Override
+                        public void onError(ANError error) {
+                            // handle error
+                            Log.e("++++++++++++++++++++++ ", error.getErrorBody());
+
+                        }
+                    });
+
+
+
+
+
+
         }
     }
 
@@ -255,7 +326,7 @@ public class HomeActivity extends AppCompatActivity {
 
         // Save a file: path for use with ACTION_VIEW intents
         mCurrentPhotoPath = image.getAbsolutePath();
-        Log.d("mylog", "Path: " + mCurrentPhotoPath);
+        Log.d("++++++++++++++++++++++", "Path: " + mCurrentPhotoPath);
         return image;
     }
 
