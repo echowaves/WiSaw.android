@@ -1,15 +1,19 @@
 package com.echowaves.wisaw;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Base64;
 import android.util.Log;
+import android.view.View;
 import android.widget.GridView;
+import android.widget.ImageButton;
 
 import com.androidnetworking.AndroidNetworking;
 import com.androidnetworking.common.Priority;
@@ -25,9 +29,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.ByteArrayOutputStream;
-import java.io.UnsupportedEncodingException;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 
 import io.nlopez.smartlocation.OnLocationUpdatedListener;
@@ -45,6 +46,9 @@ public class HomeActivity extends AppCompatActivity {
     private static final int LOCATION_PERMISSION_ID = 1001;
 
     private JSONArray photosJSON;
+
+
+    private static final int CAMERA_REQUEST = 1888;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -114,7 +118,54 @@ public class HomeActivity extends AppCompatActivity {
 
 
 
+        ImageButton capture = (ImageButton) findViewById(R.id.btnCapture);
+        capture.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
 
+                Dexter.withActivity((Activity) context)
+                        .withPermission(Manifest.permission.CAMERA)
+                        .withListener(new PermissionListener() {
+                            @Override public void onPermissionGranted(PermissionGrantedResponse response) {
+                        /* ... */
+                                Log.d("++++++++++++++++++++++", "onPermissionGranted");
+
+                                Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+//                cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, outputFileUri);
+
+                                startActivityForResult(cameraIntent, CAMERA_REQUEST);
+
+
+
+                            }
+                            @Override public void onPermissionDenied(PermissionDeniedResponse response) {
+                        /* ... */
+                                Log.d("++++++++++++++++++++++", "onPermissionDenied");
+
+                            }
+
+                            @Override
+                            public void onPermissionRationaleShouldBeShown(com.karumi.dexter.listener.PermissionRequest permission, PermissionToken token) {
+                                Log.d("++++++++++++++++++++++", "onPermissionRationaleShouldBeShown");
+
+                            }
+
+                        }).check();
+
+
+
+
+
+
+            }
+        });
+
+
+//        protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+//            if (requestCode == CAMERA_REQUEST && resultCode == RESULT_OK) {
+//                Bitmap mphoto = (Bitmap) data.getExtras().get("data");
+//
+//            }
+//        }
 
     }
 
@@ -140,7 +191,7 @@ public class HomeActivity extends AppCompatActivity {
                     bArray[j] = (byte)dataJSON.getInt(j);
                 }
 
-                Log.d("++++++++++++++++++++++", "data: " + bArray);
+//                Log.d("++++++++++++++++++++++", "data: " + bArray);
 
                 Bitmap bitmap = BitmapFactory.decodeByteArray(bArray, 0, bArray.length);
                 imageItems.add(new ImageItem(bitmap));
@@ -194,7 +245,7 @@ public class HomeActivity extends AppCompatActivity {
                         try {
                             photosJSON = response.getJSONArray("photos");
 
-                            Log.d("++++++++++++++++++++++", photosJSON.toString());
+//                            Log.d("++++++++++++++++++++++", photosJSON.toString());
 
                             gridAdapter = new GridViewAdapter(context, R.layout.grid_item_layout, getData());
                             gridView.setAdapter(gridAdapter);
@@ -212,10 +263,6 @@ public class HomeActivity extends AppCompatActivity {
                     }
                 });
     }
-
-
-
-
 
 
 }
