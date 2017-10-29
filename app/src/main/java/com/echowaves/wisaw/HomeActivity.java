@@ -2,16 +2,13 @@ package com.echowaves.wisaw;
 
 import android.Manifest;
 import android.content.Context;
-import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Base64;
 import android.util.Log;
-import android.webkit.PermissionRequest;
 import android.widget.GridView;
 
 import com.androidnetworking.AndroidNetworking;
@@ -22,21 +19,19 @@ import com.karumi.dexter.Dexter;
 import com.karumi.dexter.PermissionToken;
 import com.karumi.dexter.listener.PermissionDeniedResponse;
 import com.karumi.dexter.listener.PermissionGrantedResponse;
-import com.karumi.dexter.listener.single.DialogOnDeniedPermissionListener;
 import com.karumi.dexter.listener.single.PermissionListener;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.ByteArrayOutputStream;
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 
 import io.nlopez.smartlocation.OnLocationUpdatedListener;
 import io.nlopez.smartlocation.SmartLocation;
-import io.nlopez.smartlocation.geofencing.model.GeofenceModel;
-import io.nlopez.smartlocation.location.config.LocationAccuracy;
-import io.nlopez.smartlocation.location.config.LocationParams;
-import io.nlopez.smartlocation.location.providers.LocationGooglePlayServicesProvider;
 
 
 public class HomeActivity extends AppCompatActivity {
@@ -128,7 +123,6 @@ public class HomeActivity extends AppCompatActivity {
     private ArrayList<ImageItem> getData() {
         Log.d("++++++++++++++++++++++", "getData()");
 
-
         final ArrayList<ImageItem> imageItems = new ArrayList<>();
 
 
@@ -137,8 +131,16 @@ public class HomeActivity extends AppCompatActivity {
 
             try {
                 JSONObject thumbJSON = photosJSON.getJSONObject(i).getJSONObject("thumbNail");
+                JSONArray dataJSON = thumbJSON.getJSONArray("data");
 
-                byte[] bArray=thumbJSON.getString("data").toString().getBytes();
+                byte[] bArray = new byte[dataJSON.length()];
+
+
+                for(int j= 0; j<dataJSON.length(); j++) {
+                    bArray[j] = (byte)dataJSON.getInt(j);
+                }
+
+                Log.d("++++++++++++++++++++++", "data: " + bArray);
 
                 Bitmap bitmap = BitmapFactory.decodeByteArray(bArray, 0, bArray.length);
                 imageItems.add(new ImageItem(bitmap));
