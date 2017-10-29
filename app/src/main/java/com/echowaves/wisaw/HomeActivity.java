@@ -17,9 +17,12 @@ import android.provider.Settings;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.ImageButton;
+import android.widget.Toast;
 
 import com.androidnetworking.AndroidNetworking;
 import com.androidnetworking.common.Priority;
@@ -87,6 +90,34 @@ public class HomeActivity extends AppCompatActivity {
 //        StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder(); StrictMode.setVmPolicy(builder.build());
 
         gridView = (GridView) findViewById(R.id.gridView);
+
+        gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view,
+                                    int position, long id) {
+
+                JSONObject photoJSON = null;
+                String photoId = null;
+                String UUID = null;
+                try {
+                    photoJSON = photosJSON.getJSONObject(position);
+                    photoId = photoJSON.getString("id");
+                    UUID = photoJSON.getString("uuid");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+
+                Intent detailedViewIntent = new Intent(context, DetailedViewActivity.class);
+                detailedViewIntent.putExtra("uuid",UUID);
+                detailedViewIntent.putExtra("photoId",photoId);
+                startActivity(detailedViewIntent);
+
+
+
+            }
+        });
 
         AndroidNetworking.initialize(getApplicationContext());
 
@@ -314,7 +345,13 @@ public class HomeActivity extends AppCompatActivity {
                         @Override
                         public void onError(ANError error) {
                             // handle error
-                            Log.e("++++++++++++++++++++++ ", error.getErrorBody());
+                            Log.e("++++++++++++++++++++++ ", "error: " + error.getErrorCode());
+                            if(error.getErrorCode()==401) {
+                                Toast toast = Toast.makeText(getApplicationContext(), "Sorry, looks like you are banned from WiSaw.",
+                                        Toast.LENGTH_SHORT);
+                                toast.setGravity(Gravity.CENTER, 0, 0);
+                                toast.show();
+                            }
 
                         }
                     });
@@ -346,6 +383,23 @@ public class HomeActivity extends AppCompatActivity {
     }
 
 
+    public static Bitmap fromJsonArray(JSONArray array) {
+        byte[] bArray = new byte[array.length()];
+
+        for(int j= 0; j<array.length(); j++) {
+            try {
+                bArray[j] = (byte)array.getInt(j);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+
+//                Log.d("++++++++++++++++++++++", "data: " + bArray);
+
+        Bitmap bitmap = BitmapFactory.decodeByteArray(bArray, 0, bArray.length);
+        return bitmap;
+    }
+
     // Prepare some data for gridview
     private ArrayList<ImageItem> getData() {
         Log.d("++++++++++++++++++++++", "getData()");
@@ -360,16 +414,10 @@ public class HomeActivity extends AppCompatActivity {
                 JSONObject thumbJSON = photosJSON.getJSONObject(i).getJSONObject("thumbNail");
                 JSONArray dataJSON = thumbJSON.getJSONArray("data");
 
-                byte[] bArray = new byte[dataJSON.length()];
 
 
-                for(int j= 0; j<dataJSON.length(); j++) {
-                    bArray[j] = (byte)dataJSON.getInt(j);
-                }
+                Bitmap bitmap = fromJsonArray(dataJSON);
 
-//                Log.d("++++++++++++++++++++++", "data: " + bArray);
-
-                Bitmap bitmap = BitmapFactory.decodeByteArray(bArray, 0, bArray.length);
                 imageItems.add(new ImageItem(bitmap));
 
             } catch (JSONException e) {
