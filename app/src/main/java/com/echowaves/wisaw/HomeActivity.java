@@ -62,12 +62,12 @@ public class HomeActivity extends AppCompatActivity {
     private Location mLastLocation;
 
     Context context;
-    private static final int LOCATION_PERMISSION_ID = 1001;
 
     private JSONArray photosJSON;
 
-
+    private static final int LOCATION_PERMISSION_ID = 1001;
     private static final int CAMERA_REQUEST = 1888;
+    private static final int DETAILEDVIEW_REQUEST = 1889;
 
 
     private String mCurrentPhotoPath;
@@ -112,9 +112,8 @@ public class HomeActivity extends AppCompatActivity {
                 Intent detailedViewIntent = new Intent(context, DetailedViewActivity.class);
                 detailedViewIntent.putExtra("uuid",UUID);
                 detailedViewIntent.putExtra("photoId",photoId);
-                startActivity(detailedViewIntent);
 
-
+                startActivityForResult(detailedViewIntent, DETAILEDVIEW_REQUEST);
 
             }
         });
@@ -286,6 +285,10 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if(requestCode == DETAILEDVIEW_REQUEST) {
+            loadImages();
+        }
+
         if (requestCode == CAMERA_REQUEST && resultCode == RESULT_OK) {
             Bundle extras = data.getExtras();
 //            Bitmap imageBitmap = (Bitmap) extras.get("data");
