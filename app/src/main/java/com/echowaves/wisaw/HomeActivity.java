@@ -36,7 +36,10 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -93,9 +96,7 @@ public class HomeActivity extends AppCompatActivity {
 
 
         String androidId = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
-
         uuid = UUID.nameUUIDFromBytes(androidId.getBytes()).toString();
-
         Log.d("++++++++++++++++++++++", "uuid: " + uuid);
 
         Dexter.withActivity(this)
@@ -237,6 +238,22 @@ public class HomeActivity extends AppCompatActivity {
 
     }
 
+    private byte[] getByte(String path) {
+        byte[] getBytes = {};
+        try {
+            File file = new File(path);
+            getBytes = new byte[(int) file.length()];
+            InputStream is = new FileInputStream(file);
+            is.read(getBytes);
+            is.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return getBytes;
+    }
+
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == CAMERA_REQUEST && resultCode == RESULT_OK) {
             Bundle extras = data.getExtras();
@@ -250,26 +267,33 @@ public class HomeActivity extends AppCompatActivity {
                     });
 
 
-
-
+            JSONArray imageJSON = new JSONArray();
             JSONArray coordinatesJSON = new JSONArray();
             JSONObject locationJSON = new JSONObject();
             JSONObject parametersJSON = new JSONObject();
             try {
+                parametersJSON.put("uuid", uuid);
                 coordinatesJSON.put(this.mLastLocation.getLatitude());
                 coordinatesJSON.put(this.mLastLocation.getLongitude());
-
-
                 locationJSON.put("type", "Point");
                 locationJSON.put("coordinates", coordinatesJSON);
-
-
                 parametersJSON.put("location", locationJSON);
+
+
+                byte[] bytes = getByte(mCurrentPhotoPath);
+
+                for(int ii=0; ii< bytes.length; ii++) {
+                    imageJSON.put(ii, bytes[ii]);
+                }
+
+
+                parametersJSON.put("imageData", imageJSON);
 
             } catch (JSONException e) {
                 e.printStackTrace();
             }
 
+//            Log.d("++++++++++++++++++++++", parametersJSON.toString());
 
 
             AndroidNetworking.post("https://www.wisaw.com/api/photos")
@@ -283,18 +307,9 @@ public class HomeActivity extends AppCompatActivity {
                             // do anything with response
 
 
-                            try {
-                                photosJSON = response.getJSONArray("photos");
+                            Log.d("++++++++++++++++++++++", response.toString());
 
-//                            Log.d("++++++++++++++++++++++", photosJSON.toString());
-
-                                gridAdapter = new GridViewAdapter(context, R.layout.grid_item_layout, getData());
-                                gridView.setAdapter(gridAdapter);
-
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
-
+                            loadImages();
                         }
                         @Override
                         public void onError(ANError error) {
@@ -368,7 +383,6 @@ public class HomeActivity extends AppCompatActivity {
 
 
     private void loadImages()  {
-
 
         JSONArray coordinatesJSON = new JSONArray();
         JSONObject locationJSON = new JSONObject();
