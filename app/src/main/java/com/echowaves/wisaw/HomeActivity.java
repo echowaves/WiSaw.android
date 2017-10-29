@@ -7,8 +7,13 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.location.Location;
+import android.media.MediaScannerConnection;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
+import android.os.StrictMode;
 import android.provider.MediaStore;
+import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -29,10 +34,16 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
 import io.nlopez.smartlocation.OnLocationUpdatedListener;
 import io.nlopez.smartlocation.SmartLocation;
+
+import static android.os.Environment.getExternalStoragePublicDirectory;
 
 
 public class HomeActivity extends AppCompatActivity {
@@ -50,11 +61,21 @@ public class HomeActivity extends AppCompatActivity {
 
     private static final int CAMERA_REQUEST = 1888;
 
+
+    private String mCurrentPhotoPath;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        //Allowing Strict mode policy for Nougat support
+        StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
+        StrictMode.setVmPolicy(builder.build());
+
         setContentView(R.layout.activity_home);
         context = this;
+
+//        StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder(); StrictMode.setVmPolicy(builder.build());
 
         gridView = (GridView) findViewById(R.id.gridView);
 
@@ -129,10 +150,57 @@ public class HomeActivity extends AppCompatActivity {
                         /* ... */
                                 Log.d("++++++++++++++++++++++", "onPermissionGranted");
 
-                                Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-//                cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, outputFileUri);
 
-                                startActivityForResult(cameraIntent, CAMERA_REQUEST);
+
+
+
+                                Dexter.withActivity((Activity) context)
+                                        .withPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                                        .withListener(new PermissionListener() {
+                                            @Override public void onPermissionGranted(PermissionGrantedResponse response) {
+                        /* ... */
+                                                Log.d("++++++++++++++++++++++", "onPermissionGranted");
+
+
+
+                                                Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+
+
+                                                // Continue only if the File was successfully created
+
+                                                    Log.d("mylog", "Photofile not null");
+                                                Uri photoURI = null;
+                                                try {
+                                                    photoURI = FileProvider.getUriForFile(HomeActivity.this,
+                                                            BuildConfig.APPLICATION_ID + ".provider",
+                                                                createImageFile());
+                                                } catch (IOException e) {
+                                                    e.printStackTrace();
+                                                }
+
+                                                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
+
+                                                startActivityForResult(takePictureIntent, CAMERA_REQUEST);
+
+
+
+                                            }
+                                            @Override public void onPermissionDenied(PermissionDeniedResponse response) {
+                        /* ... */
+                                                Log.d("++++++++++++++++++++++", "onPermissionDenied");
+
+                                            }
+
+                                            @Override
+                                            public void onPermissionRationaleShouldBeShown(com.karumi.dexter.listener.PermissionRequest permission, PermissionToken token) {
+                                                Log.d("++++++++++++++++++++++", "onPermissionRationaleShouldBeShown");
+
+                                            }
+
+                                        }).check();
+
+
+
 
 
 
@@ -152,21 +220,43 @@ public class HomeActivity extends AppCompatActivity {
                         }).check();
 
 
-
-
-
-
             }
         });
 
 
-//        protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-//            if (requestCode == CAMERA_REQUEST && resultCode == RESULT_OK) {
-//                Bitmap mphoto = (Bitmap) data.getExtras().get("data");
-//
-//            }
-//        }
 
+    }
+
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == CAMERA_REQUEST && resultCode == RESULT_OK) {
+            Bundle extras = data.getExtras();
+//            Bitmap imageBitmap = (Bitmap) extras.get("data");
+
+            MediaScannerConnection.scanFile(context,
+                    new String[] { mCurrentPhotoPath }, null,
+                    new MediaScannerConnection.OnScanCompletedListener() {
+                        public void onScanCompleted(String path, Uri uri) {
+                        }
+                    });
+        }
+    }
+
+
+    private File createImageFile() throws IOException {
+        // Create an image file name
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String imageFileName = "JPEG_" + timeStamp + "_";
+        File storageDir = getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+        File image = File.createTempFile(
+                imageFileName,  /* prefix */
+                ".jpg",         /* suffix */
+                storageDir      /* directory */
+        );
+
+        // Save a file: path for use with ACTION_VIEW intents
+        mCurrentPhotoPath = image.getAbsolutePath();
+        Log.d("mylog", "Path: " + mCurrentPhotoPath);
+        return image;
     }
 
 
