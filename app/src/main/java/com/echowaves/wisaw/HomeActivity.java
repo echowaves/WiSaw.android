@@ -290,8 +290,9 @@ public class HomeActivity extends AppCompatActivity {
         }
 
         if (requestCode == CAMERA_REQUEST && resultCode == RESULT_OK) {
-            Bundle extras = data.getExtras();
+//            Bundle extras = data.getExtras();
 //            Bitmap imageBitmap = (Bitmap) extras.get("data");
+
 
             MediaScannerConnection.scanFile(context,
                     new String[] { mCurrentPhotoPath }, null,
