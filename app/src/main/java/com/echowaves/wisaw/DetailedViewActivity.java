@@ -12,11 +12,13 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.androidnetworking.AndroidNetworking;
 import com.androidnetworking.common.Priority;
 import com.androidnetworking.error.ANError;
 import com.androidnetworking.interfaces.JSONObjectRequestListener;
+import com.eqot.fontawesome.FontAwesome;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -24,9 +26,9 @@ import org.json.JSONObject;
 
 public class DetailedViewActivity extends AppCompatActivity {
 
-    Button cancelButton;
-    Button reportAbuseButton;
-    ImageButton deleteButton;
+    TextView cancelButton;
+    TextView reportAbuseButton;
+    TextView deleteButton;
     ImageView imageView;
 
     Context context;
@@ -40,12 +42,15 @@ public class DetailedViewActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detailed_view);
 
+        FontAwesome.applyToAllViews(this, findViewById(R.id.activity_details));
+
+
         Intent myIntent = getIntent(); // gets the previously created intent
         uuid = myIntent.getStringExtra("uuid"); // will return "FirstKeyValue"
         photoId= myIntent.getStringExtra("photoId"); // will return "SecondKeyValue"
 
         context = this;
-        cancelButton = (Button) findViewById(R.id.btnCancel);
+        cancelButton = (TextView) findViewById(R.id.btnCancel);
         cancelButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -56,7 +61,7 @@ public class DetailedViewActivity extends AppCompatActivity {
 
 
 
-        reportAbuseButton = (Button) findViewById(R.id.btnReportAbuse);
+        reportAbuseButton = (TextView) findViewById(R.id.btnReportAbuse);
         reportAbuseButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -134,7 +139,7 @@ public class DetailedViewActivity extends AppCompatActivity {
 
 
 
-        deleteButton = (ImageButton)findViewById(R.id.btnDelete);
+        deleteButton = (TextView)findViewById(R.id.btnDelete);
         deleteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

@@ -5,6 +5,7 @@
 
 
 
+    android:id="@+id/activity_details"
 
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -15,33 +16,40 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:layout_margin="2sp">
 
-        <Button
+        <TextView
             android:id="@+id/btnCancel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentStart="true"
+            android:textSize="30sp"
+            android:layout_margin="5sp"
             android:layout_centerVertical="true"
-            android:text="Cancel" />
+            android:text="{fa-chevron-left}" />
 
-        <Button
+        <TextView
             android:id="@+id/btnReportAbuse"
             android:layout_width="wrap_content"
+            android:textSize="30sp"
+            android:layout_margin="5sp"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
             android:layout_toStartOf="@+id/btnDelete"
-            android:text="Report Abuse" />
+            android:text="{fa-ban}" />
 
 
-        <ImageButton
+        <TextView
             android:id="@+id/btnDelete"
             android:layout_width="wrap_content"
+            android:textSize="30sp"
+            android:layout_margin="5sp"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
             android:layout_alignParentEnd="true"
-            android:background="@android:drawable/alert_dark_frame"
-            app:srcCompat="@android:drawable/ic_menu_delete" />
+
+            android:text="{fa-trash}" />
 
     </RelativeLayout>
 
