@@ -21,7 +21,6 @@ import android.view.Gravity;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.GridView;
-import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -29,6 +28,7 @@ import com.androidnetworking.AndroidNetworking;
 import com.androidnetworking.common.Priority;
 import com.androidnetworking.error.ANError;
 import com.androidnetworking.interfaces.JSONObjectRequestListener;
+import com.crashlytics.android.Crashlytics;
 import com.eqot.fontawesome.FontAwesome;
 import com.karumi.dexter.Dexter;
 import com.karumi.dexter.PermissionToken;
@@ -50,6 +50,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.UUID;
 
+import io.fabric.sdk.android.Fabric;
 import io.nlopez.smartlocation.OnLocationUpdatedListener;
 import io.nlopez.smartlocation.SmartLocation;
 
@@ -81,6 +82,7 @@ public class HomeActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Fabric.with(this, new Crashlytics());
         //Allowing Strict mode policy for Nougat support
         StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
         StrictMode.setVmPolicy(builder.build());
@@ -159,7 +161,7 @@ public class HomeActivity extends AppCompatActivity {
                                 .start(new OnLocationUpdatedListener() {
                                     @Override
                                     public void onLocationUpdated(Location location) {
-                                        Log.d("++++++++++++++++++++++", "obtined new location: " + location.toString());
+                                        Log.d("++++++++++++++++++++++", "obtained new location: " + location.toString());
                                         mLastLocation = location;
                                         loadImages();
                                     }
