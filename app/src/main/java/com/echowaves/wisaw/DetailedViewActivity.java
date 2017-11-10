@@ -4,14 +4,13 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.androidnetworking.AndroidNetworking;
@@ -25,6 +24,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 public class DetailedViewActivity extends AppCompatActivity {
+    private ProgressBar progressBar;
 
     TextView cancelButton;
     TextView reportAbuseButton;
@@ -41,6 +41,9 @@ public class DetailedViewActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detailed_view);
+
+        progressBar = findViewById(R.id.progressBar_cyclic);
+        progressBar.bringToFront();
 
         FontAwesome.applyToAllViews(this, findViewById(R.id.activity_details));
 
@@ -77,7 +80,7 @@ public class DetailedViewActivity extends AppCompatActivity {
                                 } catch (JSONException e) {
                                     e.printStackTrace();
                                 };
-
+                                progressBar.setVisibility(View.VISIBLE);
                                 AndroidNetworking.post("https://www.wisaw.com/api/abusereport")
                                         .addJSONObjectBody(parametersJSON)
                                         .setContentType("application/json")
@@ -86,11 +89,13 @@ public class DetailedViewActivity extends AppCompatActivity {
                                         .getAsJSONObject(new JSONObjectRequestListener() {
                                             @Override
                                             public void onResponse(JSONObject response) {
+                                                progressBar.setVisibility(View.INVISIBLE);
+
                                                 // do anything with response
 
 
 
-
+                                                progressBar.setVisibility(View.VISIBLE);
                                                 AndroidNetworking.delete("https://www.wisaw.com/api/photos/" + photoId)
                                                         .setContentType("application/json")
                                                         .setPriority(Priority.MEDIUM)
@@ -98,11 +103,15 @@ public class DetailedViewActivity extends AppCompatActivity {
                                                         .getAsJSONObject(new JSONObjectRequestListener() {
                                                             @Override
                                                             public void onResponse(JSONObject response) {
+                                                                progressBar.setVisibility(View.INVISIBLE);
+
                                                                 // do anything with response
                                                                 finish();
                                                             }
                                                             @Override
                                                             public void onError(ANError error) {
+                                                                progressBar.setVisibility(View.INVISIBLE);
+
                                                                 // handle error
                                                                 Log.e("++++++++++++++++++++++ ", error.getErrorBody());
 
@@ -113,6 +122,8 @@ public class DetailedViewActivity extends AppCompatActivity {
                                             }
                                             @Override
                                             public void onError(ANError error) {
+                                                progressBar.setVisibility(View.INVISIBLE);
+
                                                 // handle error
                                                 Log.e("++++++++++++++++++++++ ", error.getErrorBody());
 
@@ -148,7 +159,7 @@ public class DetailedViewActivity extends AppCompatActivity {
                         .setNegativeButton("Delete", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-
+                                            progressBar.setVisibility(View.VISIBLE);
                                                 AndroidNetworking.delete("https://www.wisaw.com/api/photos/" + photoId)
                                                         .setContentType("application/json")
                                                         .setPriority(Priority.MEDIUM)
@@ -156,11 +167,13 @@ public class DetailedViewActivity extends AppCompatActivity {
                                                         .getAsJSONObject(new JSONObjectRequestListener() {
                                                             @Override
                                                             public void onResponse(JSONObject response) {
+                                                                progressBar.setVisibility(View.INVISIBLE);
                                                                 // do anything with response
                                                                 finish();
                                                             }
                                                             @Override
                                                             public void onError(ANError error) {
+                                                                progressBar.setVisibility(View.INVISIBLE);
                                                                 // handle error
                                                                 Log.e("++++++++++++++++++++++ ", error.getErrorBody());
 
@@ -187,28 +200,16 @@ public class DetailedViewActivity extends AppCompatActivity {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         imageView = (ImageView)findViewById(R.id.imageView);
+        progressBar.setVisibility(View.VISIBLE);
         AndroidNetworking.get("https://www.wisaw.com/api/photos/" + photoId)
                 .setPriority(Priority.MEDIUM)
                 .build()
                 .getAsJSONObject(new JSONObjectRequestListener() {
                     @Override
                     public void onResponse(JSONObject response) {
+                        progressBar.setVisibility(View.INVISIBLE);
+
                         // do anything with response
 
 
@@ -227,6 +228,8 @@ public class DetailedViewActivity extends AppCompatActivity {
                     }
                     @Override
                     public void onError(ANError error) {
+                        progressBar.setVisibility(View.INVISIBLE);
+
                         // handle error
                         Log.e("++++++++++++++++++++++ ", error.getErrorBody());
 

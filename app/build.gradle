@@ -38,8 +38,8 @@ android {
         applicationId "com.echowaves.wisaw"
         minSdkVersion 21
         targetSdkVersion 26
-        versionCode 12
-        versionName "1.2.5"
+        versionCode 13
+        versionName "1.2.6"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -78,6 +78,7 @@ dependencies {
     compile('com.crashlytics.sdk.android:crashlytics:2.7.1@aar') {
         transitive = true;
     }
+    compile 'com.github.DamanSingh4321:ProProgressViews:v1.1'
 
 
 }

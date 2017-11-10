@@ -15,12 +15,14 @@ import android.os.StrictMode;
 import android.provider.MediaStore;
 import android.provider.Settings;
 import android.support.v4.content.FileProvider;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.GridView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -58,7 +60,9 @@ import static android.os.Environment.getExternalStoragePublicDirectory;
 
 
 public class HomeActivity extends AppCompatActivity {
+    private ProgressBar progressBar;
 
+    private SwipeRefreshLayout mSwipeRefreshLayout;
     private GridView gridView;
     private GridViewAdapter gridAdapter;
 
@@ -88,6 +92,10 @@ public class HomeActivity extends AppCompatActivity {
         StrictMode.setVmPolicy(builder.build());
 
         setContentView(R.layout.activity_home);
+
+        progressBar = findViewById(R.id.progressBar_cyclic);
+        progressBar.setVisibility(View.INVISIBLE);
+        progressBar.bringToFront();
 
         FontAwesome.applyToAllViews(this, findViewById(R.id.activity_home));
 
@@ -273,6 +281,14 @@ public class HomeActivity extends AppCompatActivity {
 
 
 
+        mSwipeRefreshLayout = findViewById(R.id.activity_main_swipe_refresh_layout);
+        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                mSwipeRefreshLayout.setRefreshing(false);
+                loadImages();
+            };
+        });
     }
 
     private byte[] getByte(String path) {
@@ -292,6 +308,9 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if(this.mLastLocation == null) {
+            return;
+        }
         if(requestCode == DETAILEDVIEW_REQUEST) {
             loadImages();
         }
@@ -337,7 +356,7 @@ public class HomeActivity extends AppCompatActivity {
 
 //            Log.d("++++++++++++++++++++++", parametersJSON.toString());
 
-
+            progressBar.setVisibility(View.VISIBLE);
             AndroidNetworking.post("https://www.wisaw.com/api/photos")
                     .addJSONObjectBody(parametersJSON)
                     .setContentType("application/json")
@@ -348,6 +367,7 @@ public class HomeActivity extends AppCompatActivity {
                         public void onResponse(JSONObject response) {
                             // do anything with response
 
+                            progressBar.setVisibility(View.INVISIBLE);
 
                             Log.d("++++++++++++++++++++++", response.toString());
 
@@ -355,6 +375,8 @@ public class HomeActivity extends AppCompatActivity {
                         }
                         @Override
                         public void onError(ANError error) {
+                            progressBar.setVisibility(View.INVISIBLE);
+
                             // handle error
                             Log.e("++++++++++++++++++++++ ", "error: " + error.getErrorCode());
                             if(error.getErrorCode()==401) {
@@ -442,6 +464,9 @@ public class HomeActivity extends AppCompatActivity {
 
 
     private void loadImages()  {
+        if(this.mLastLocation == null) {
+            return;
+        }
 
         JSONArray coordinatesJSON = new JSONArray();
         JSONObject locationJSON = new JSONObject();
@@ -464,7 +489,7 @@ public class HomeActivity extends AppCompatActivity {
 
 
         Log.d("++++++++++++++++++++++", "loading images via API");
-
+        progressBar.setVisibility(View.VISIBLE);
         AndroidNetworking.post("https://www.wisaw.com/api/photos/feed")
                 .addJSONObjectBody(parametersJSON)
                 .setContentType("application/json")
@@ -473,6 +498,8 @@ public class HomeActivity extends AppCompatActivity {
                 .getAsJSONObject(new JSONObjectRequestListener() {
                     @Override
                     public void onResponse(JSONObject response) {
+                        progressBar.setVisibility(View.INVISIBLE);
+
                         // do anything with response
 
 
@@ -491,6 +518,8 @@ public class HomeActivity extends AppCompatActivity {
                     }
                     @Override
                     public void onError(ANError error) {
+                        progressBar.setVisibility(View.INVISIBLE);
+
                         // handle error
                         Log.e("++++++++++++++++++++++ ", error.getErrorBody());
 
