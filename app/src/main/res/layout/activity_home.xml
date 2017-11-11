@@ -50,25 +50,27 @@
     <android.support.v4.widget.SwipeRefreshLayout
         android:id="@+id/activity_main_swipe_refresh_layout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-          <GridView
-                android:id="@+id/gridView"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/relativeLayout"
-                android:layout_marginBottom="5dp"
-                android:layout_marginLeft="5dp"
-                android:layout_marginRight="5dp"
-                android:clickable="true"
-                android:columnWidth="100dp"
-                android:drawSelectorOnTop="true"
-                android:focusable="true"
-                android:gravity="center"
-                android:numColumns="auto_fit"
-                android:scrollbars="none"
-                android:overScrollMode="always"
-                android:stretchMode="columnWidth"
-                android:verticalSpacing="5dp" />
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/relativeLayout">
+
+        <GridView
+            android:id="@+id/gridView"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/relativeLayout"
+            android:layout_marginBottom="5dp"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:clickable="true"
+            android:columnWidth="100dp"
+            android:drawSelectorOnTop="true"
+            android:focusable="true"
+            android:gravity="center"
+            android:numColumns="auto_fit"
+            android:overScrollMode="always"
+            android:scrollbars="none"
+            android:stretchMode="columnWidth"
+            android:verticalSpacing="5dp" />
 
     </android.support.v4.widget.SwipeRefreshLayout>
 

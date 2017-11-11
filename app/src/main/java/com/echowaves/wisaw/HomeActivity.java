@@ -70,7 +70,7 @@ public class HomeActivity extends AppCompatActivity {
 
     Context context;
 
-    private JSONArray photosJSON;
+    public static JSONArray photosJSON; //TODO: do not know what to do about it, will have to figure something out later
 
     private static final int LOCATION_PERMISSION_ID = 1001;
     private static final int CAMERA_REQUEST = 1888;
@@ -112,21 +112,10 @@ public class HomeActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view,
                                     int position, long id) {
 
-                JSONObject photoJSON = null;
-                String photoId = null;
-                String UUID = null;
-                try {
-                    photoJSON = photosJSON.getJSONObject(position);
-                    photoId = photoJSON.getString("id");
-                    UUID = photoJSON.getString("uuid");
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-
 
                 Intent detailedViewIntent = new Intent(context, DetailedViewActivity.class);
-                detailedViewIntent.putExtra("uuid",UUID);
-                detailedViewIntent.putExtra("photoId",photoId);
+//                detailedViewIntent.putExtra("photos",photosJSON.toString());
+                detailedViewIntent.putExtra("position", String.valueOf(position));
 
                 startActivityForResult(detailedViewIntent, DETAILEDVIEW_REQUEST);
 
@@ -316,9 +305,6 @@ public class HomeActivity extends AppCompatActivity {
         }
 
         if (requestCode == CAMERA_REQUEST && resultCode == RESULT_OK) {
-//            Bundle extras = data.getExtras();
-//            Bitmap imageBitmap = (Bitmap) extras.get("data");
-
 
             MediaScannerConnection.scanFile(context,
                     new String[] { mCurrentPhotoPath }, null,
@@ -388,11 +374,6 @@ public class HomeActivity extends AppCompatActivity {
 
                         }
                     });
-
-
-
-
-
 
         }
     }

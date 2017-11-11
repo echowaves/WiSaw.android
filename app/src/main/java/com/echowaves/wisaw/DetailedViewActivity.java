@@ -34,13 +34,17 @@ public class DetailedViewActivity extends AppCompatActivity {
     Context context;
 
 
-    String uuid;
-    String photoId;
+    private JSONArray photosJSON = null;
+    private int index = 0;
+
+    private String uuid;
+    private String photoId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detailed_view);
+        imageView = findViewById(R.id.imageView);
 
         progressBar = findViewById(R.id.progressBar_cyclic);
         progressBar.bringToFront();
@@ -49,8 +53,31 @@ public class DetailedViewActivity extends AppCompatActivity {
 
 
         Intent myIntent = getIntent(); // gets the previously created intent
-        uuid = myIntent.getStringExtra("uuid"); // will return "FirstKeyValue"
-        photoId= myIntent.getStringExtra("photoId"); // will return "SecondKeyValue"
+        try {
+
+            photosJSON = HomeActivity.photosJSON;
+            index = Integer.valueOf(myIntent.getStringExtra("position")).intValue(); // will return "SecondKeyValue"
+
+
+            JSONObject photoJSON = null;
+            photoJSON = photosJSON.getJSONObject(index);
+            photoId = photoJSON.getString("id");
+            uuid = photoJSON.getString("uuid");
+
+
+
+            JSONObject thumbJSON = photosJSON.getJSONObject(index).getJSONObject("thumbNail");
+            JSONArray dataJSON = thumbJSON.getJSONArray("data");
+
+
+
+            Bitmap bitmap = HomeActivity.fromJsonArray(dataJSON);
+
+            imageView.setImageBitmap(bitmap);
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
 
         context = this;
         cancelButton = (TextView) findViewById(R.id.btnCancel);
@@ -159,26 +186,26 @@ public class DetailedViewActivity extends AppCompatActivity {
                         .setNegativeButton("Delete", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                            progressBar.setVisibility(View.VISIBLE);
-                                                AndroidNetworking.delete("https://www.wisaw.com/api/photos/" + photoId)
-                                                        .setContentType("application/json")
-                                                        .setPriority(Priority.MEDIUM)
-                                                        .build()
-                                                        .getAsJSONObject(new JSONObjectRequestListener() {
-                                                            @Override
-                                                            public void onResponse(JSONObject response) {
-                                                                progressBar.setVisibility(View.INVISIBLE);
-                                                                // do anything with response
-                                                                finish();
-                                                            }
-                                                            @Override
-                                                            public void onError(ANError error) {
-                                                                progressBar.setVisibility(View.INVISIBLE);
-                                                                // handle error
-                                                                Log.e("++++++++++++++++++++++ ", error.getErrorBody());
+                                progressBar.setVisibility(View.VISIBLE);
+                                AndroidNetworking.delete("https://www.wisaw.com/api/photos/" + photoId)
+                                        .setContentType("application/json")
+                                        .setPriority(Priority.MEDIUM)
+                                        .build()
+                                        .getAsJSONObject(new JSONObjectRequestListener() {
+                                            @Override
+                                            public void onResponse(JSONObject response) {
+                                                progressBar.setVisibility(View.INVISIBLE);
+                                                // do anything with response
+                                                finish();
+                                            }
+                                            @Override
+                                            public void onError(ANError error) {
+                                                progressBar.setVisibility(View.INVISIBLE);
+                                                // handle error
+                                                Log.e("++++++++++++++++++++++ ", error.getErrorBody());
 
-                                                            }
-                                                        });
+                                            }
+                                        });
 
 
 
@@ -200,7 +227,6 @@ public class DetailedViewActivity extends AppCompatActivity {
 
 
 
-        imageView = (ImageView)findViewById(R.id.imageView);
         progressBar.setVisibility(View.VISIBLE);
         AndroidNetworking.get("https://www.wisaw.com/api/photos/" + photoId)
                 .setPriority(Priority.MEDIUM)
