@@ -42,6 +42,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -280,21 +281,21 @@ public class HomeActivity extends AppCompatActivity {
         });
     }
 
-    private byte[] getByte(String path) {
-        byte[] getBytes = {};
-        try {
-            File file = new File(path);
-            getBytes = new byte[(int) file.length()];
-            InputStream is = new FileInputStream(file);
-            is.read(getBytes);
-            is.close();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return getBytes;
-    }
+//    private byte[] getByte(String path) {
+//        byte[] getBytes = {};
+//        try {
+//            File file = new File(path);
+//            getBytes = new byte[(int) file.length()];
+//            InputStream is = new FileInputStream(file);
+//            is.read(getBytes);
+//            is.close();
+//        } catch (FileNotFoundException e) {
+//            e.printStackTrace();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//        return getBytes;
+//    }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if(this.mLastLocation == null) {
@@ -327,7 +328,13 @@ public class HomeActivity extends AppCompatActivity {
                 parametersJSON.put("location", locationJSON);
 
 
-                byte[] bytes = getByte(mCurrentPhotoPath);
+
+                
+                Bitmap bmp = BitmapFactory.decodeFile(mCurrentPhotoPath);
+                ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                bmp.compress(Bitmap.CompressFormat.JPEG, 70, bos);
+                byte[] bytes = bos.toByteArray();
+
 
                 for(int ii=0; ii< bytes.length; ii++) {
                     imageJSON.put(ii, bytes[ii]);
