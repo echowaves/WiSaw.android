@@ -10,7 +10,6 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
-
     <uses-feature
         android:name="android.hardware.camera"
         android:required="true" />
@@ -41,13 +40,13 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".DetailedViewActivity"></activity>
-
+        <activity android:name=".DetailedViewFragment" />
 
         <meta-data
             android:name="io.fabric.ApiKey"
-            android:value="87b4cce77e2726175a21523cd45fd311d50ec654"
-            />
+            android:value="87b4cce77e2726175a21523cd45fd311d50ec654" />
+
+        <activity android:name=".PagerActivity"></activity>
     </application>
 
 </manifest>

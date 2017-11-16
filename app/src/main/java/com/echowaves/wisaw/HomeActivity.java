@@ -44,10 +44,7 @@ import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -71,11 +68,10 @@ public class HomeActivity extends AppCompatActivity {
 
     Context context;
 
-    public static JSONArray photosJSON; //TODO: do not know what to do about it, will have to figure something out later
+    public static JSONArray photosJSON; //TODO: do not know what to go about public static, will have to figure something out later
 
-    private static final int LOCATION_PERMISSION_ID = 1001;
     private static final int CAMERA_REQUEST = 1888;
-    private static final int DETAILEDVIEW_REQUEST = 1889;
+    private static final int PAGER_REQUEST = 1889;
 
 
     private String mCurrentPhotoPath;
@@ -114,11 +110,11 @@ public class HomeActivity extends AppCompatActivity {
                                     int position, long id) {
 
 
-                Intent detailedViewIntent = new Intent(context, DetailedViewActivity.class);
-//                detailedViewIntent.putExtra("photos",photosJSON.toString());
-                detailedViewIntent.putExtra("position", String.valueOf(position));
+                Intent pagerIntent = new Intent(context, PagerActivity.class);
+//                pagerIntent.putExtra("photos",photosJSON.toString());
+                pagerIntent.putExtra("position", String.valueOf(position));
 
-                startActivityForResult(detailedViewIntent, DETAILEDVIEW_REQUEST);
+                startActivityForResult(pagerIntent, PAGER_REQUEST);
 
             }
         });
@@ -301,7 +297,7 @@ public class HomeActivity extends AppCompatActivity {
         if(this.mLastLocation == null) {
             return;
         }
-        if(requestCode == DETAILEDVIEW_REQUEST) {
+        if(requestCode == PAGER_REQUEST) {
             loadImages();
         }
 
