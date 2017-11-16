@@ -329,7 +329,7 @@ public class HomeActivity extends AppCompatActivity {
 
 
 
-                
+
                 Bitmap bmp = BitmapFactory.decodeFile(mCurrentPhotoPath);
                 ByteArrayOutputStream bos = new ByteArrayOutputStream();
                 bmp.compress(Bitmap.CompressFormat.JPEG, 70, bos);
