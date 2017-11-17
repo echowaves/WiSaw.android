@@ -47,17 +47,16 @@ public class DetailedViewFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        ViewGroup rootView = (ViewGroup) inflater.inflate(
+        ViewGroup view = (ViewGroup) inflater.inflate(
                 R.layout.fragment_detailed_view, container, false);
 
 
+        imageView = view.findViewById(R.id.imageView);
 
-        imageView = getView().findViewById(R.id.imageView);
-
-        progressBar = getView().findViewById(R.id.progressBar_cyclic);
+        progressBar = view.findViewById(R.id.progressBar_cyclic);
         progressBar.bringToFront();
 
-        FontAwesome.applyToAllViews(getContext(), getView().findViewById(R.id.activity_details));
+
 
 //        Intent myIntent = getIntent(); // gets the previously created intent
 //        index = Integer.valueOf(myIntent.getStringExtra("position")).intValue(); // will return "SecondKeyValue"
@@ -85,8 +84,8 @@ public class DetailedViewFragment extends Fragment {
             e.printStackTrace();
         }
 
-        context = getContext();
-        cancelButton = (TextView) getView().findViewById(R.id.btnCancel);
+        context = getActivity();
+        cancelButton = view.findViewById(R.id.btnCancel);
         cancelButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -97,7 +96,7 @@ public class DetailedViewFragment extends Fragment {
 
 
 
-        reportAbuseButton = (TextView) getView().findViewById(R.id.btnReportAbuse);
+        reportAbuseButton = view.findViewById(R.id.btnReportAbuse);
         reportAbuseButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -183,7 +182,7 @@ public class DetailedViewFragment extends Fragment {
 
 
 
-        deleteButton = (TextView)getView().findViewById(R.id.btnDelete);
+        deleteButton = view.findViewById(R.id.btnDelete);
         deleteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -271,9 +270,9 @@ public class DetailedViewFragment extends Fragment {
 
 
 
+        FontAwesome.applyToAllViews(view.getContext(), view.findViewById(R.id.activity_details));
 
-
-        return rootView;
+        return view;
     }
 
 
