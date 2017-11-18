@@ -349,7 +349,7 @@ public class HomeActivity extends AppCompatActivity {
             AndroidNetworking.post("https://www.wisaw.com/api/photos")
                     .addJSONObjectBody(parametersJSON)
                     .setContentType("application/json")
-                    .setPriority(Priority.MEDIUM)
+                    .setPriority(Priority.HIGH)
                     .build()
                     .getAsJSONObject(new JSONObjectRequestListener() {
                         @Override
@@ -431,8 +431,6 @@ public class HomeActivity extends AppCompatActivity {
                 JSONObject thumbJSON = photosJSON.getJSONObject(i).getJSONObject("thumbNail");
                 JSONArray dataJSON = thumbJSON.getJSONArray("data");
 
-
-
                 Bitmap bitmap = fromJsonArray(dataJSON);
 
                 imageItems.add(new ImageItem(bitmap));
@@ -477,7 +475,7 @@ public class HomeActivity extends AppCompatActivity {
         AndroidNetworking.post("https://www.wisaw.com/api/photos/feed")
                 .addJSONObjectBody(parametersJSON)
                 .setContentType("application/json")
-                .setPriority(Priority.MEDIUM)
+                .setPriority(Priority.IMMEDIATE)
                 .build()
                 .getAsJSONObject(new JSONObjectRequestListener() {
                     @Override

@@ -2,7 +2,6 @@ package com.echowaves.wisaw;
 
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -25,6 +24,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.HashMap;
+
 public class DetailedViewFragment extends Fragment {
     private ProgressBar progressBar;
 
@@ -43,6 +44,7 @@ public class DetailedViewFragment extends Fragment {
     private String photoId;
 
 
+    private static HashMap<String, Bitmap> imagesCache = new HashMap<String, Bitmap>();
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -55,7 +57,6 @@ public class DetailedViewFragment extends Fragment {
 
         progressBar = view.findViewById(R.id.progressBar_cyclic);
         progressBar.bringToFront();
-
 
 
 //        Intent myIntent = getIntent(); // gets the previously created intent
@@ -75,8 +76,12 @@ public class DetailedViewFragment extends Fragment {
             JSONObject thumbJSON = photosJSON.getJSONObject(index).getJSONObject("thumbNail");
             JSONArray dataJSON = thumbJSON.getJSONArray("data");
 
+            Bitmap bitmap = imagesCache.get(photoId);
 
-            Bitmap bitmap = HomeActivity.fromJsonArray(dataJSON);
+            if (bitmap == null) {
+                bitmap = HomeActivity.fromJsonArray(dataJSON);
+//                progressBar.setVisibility(View.INVISIBLE);
+            }
 
             imageView.setImageBitmap(bitmap);
 
@@ -94,8 +99,6 @@ public class DetailedViewFragment extends Fragment {
         });
 
 
-
-
         reportAbuseButton = view.findViewById(R.id.btnReportAbuse);
         reportAbuseButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -111,12 +114,13 @@ public class DetailedViewFragment extends Fragment {
                                     parametersJSON.put("uuid", uuid);
                                 } catch (JSONException e) {
                                     e.printStackTrace();
-                                };
+                                }
+                                ;
                                 progressBar.setVisibility(View.VISIBLE);
                                 AndroidNetworking.post("https://www.wisaw.com/api/abusereport")
                                         .addJSONObjectBody(parametersJSON)
                                         .setContentType("application/json")
-                                        .setPriority(Priority.MEDIUM)
+                                        .setPriority(Priority.HIGH)
                                         .build()
                                         .getAsJSONObject(new JSONObjectRequestListener() {
                                             @Override
@@ -126,11 +130,10 @@ public class DetailedViewFragment extends Fragment {
                                                 // do anything with response
 
 
-
                                                 progressBar.setVisibility(View.VISIBLE);
                                                 AndroidNetworking.delete("https://www.wisaw.com/api/photos/" + photoId)
                                                         .setContentType("application/json")
-                                                        .setPriority(Priority.MEDIUM)
+                                                        .setPriority(Priority.HIGH)
                                                         .build()
                                                         .getAsJSONObject(new JSONObjectRequestListener() {
                                                             @Override
@@ -140,6 +143,7 @@ public class DetailedViewFragment extends Fragment {
                                                                 // do anything with response
                                                                 getActivity().finish();
                                                             }
+
                                                             @Override
                                                             public void onError(ANError error) {
                                                                 progressBar.setVisibility(View.INVISIBLE);
@@ -152,6 +156,7 @@ public class DetailedViewFragment extends Fragment {
 
 
                                             }
+
                                             @Override
                                             public void onError(ANError error) {
                                                 progressBar.setVisibility(View.INVISIBLE);
@@ -161,10 +166,6 @@ public class DetailedViewFragment extends Fragment {
 
                                             }
                                         });
-
-
-
-
 
 
                             }
@@ -179,7 +180,6 @@ public class DetailedViewFragment extends Fragment {
 
             }
         });
-
 
 
         deleteButton = view.findViewById(R.id.btnDelete);
@@ -194,7 +194,7 @@ public class DetailedViewFragment extends Fragment {
                                 progressBar.setVisibility(View.VISIBLE);
                                 AndroidNetworking.delete("https://www.wisaw.com/api/photos/" + photoId)
                                         .setContentType("application/json")
-                                        .setPriority(Priority.MEDIUM)
+                                        .setPriority(Priority.HIGH)
                                         .build()
                                         .getAsJSONObject(new JSONObjectRequestListener() {
                                             @Override
@@ -203,6 +203,7 @@ public class DetailedViewFragment extends Fragment {
                                                 // do anything with response
                                                 getActivity().finish();
                                             }
+
                                             @Override
                                             public void onError(ANError error) {
                                                 progressBar.setVisibility(View.INVISIBLE);
@@ -211,9 +212,6 @@ public class DetailedViewFragment extends Fragment {
 
                                             }
                                         });
-
-
-
 
                             }
                         })
@@ -229,46 +227,7 @@ public class DetailedViewFragment extends Fragment {
         });
 
 
-
-
-
-        progressBar.setVisibility(View.VISIBLE);
-        AndroidNetworking.get("https://www.wisaw.com/api/photos/" + photoId)
-                .setPriority(Priority.MEDIUM)
-                .build()
-                .getAsJSONObject(new JSONObjectRequestListener() {
-                    @Override
-                    public void onResponse(JSONObject response) {
-                        progressBar.setVisibility(View.INVISIBLE);
-
-                        // do anything with response
-
-
-                        JSONArray imageDataArray=null;
-                        try {
-                            JSONObject photoJson = response.getJSONObject("photo");
-                            JSONObject imageDataJson = photoJson.getJSONObject("imageData");
-                            imageDataArray = imageDataJson.getJSONArray("data");
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-
-                        Bitmap imageData = HomeActivity.fromJsonArray(imageDataArray);
-                        imageView.setImageBitmap(imageData);
-
-                    }
-                    @Override
-                    public void onError(ANError error) {
-                        progressBar.setVisibility(View.INVISIBLE);
-
-                        // handle error
-                        Log.e("++++++++++++++++++++++ ", error.getErrorBody());
-
-                    }
-                });
-
-
-
+//        progressBar.setVisibility(View.VISIBLE);
 
         FontAwesome.applyToAllViews(view.getContext(), view.findViewById(R.id.activity_details));
 
@@ -276,5 +235,70 @@ public class DetailedViewFragment extends Fragment {
     }
 
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        progressBar.setVisibility(View.INVISIBLE);
+
+        if (!getUserVisibleHint()) {
+//            progressBar.setVisibility(View.INVISIBLE);
+            return;
+        }
+
+
+        Bitmap bitmap = imagesCache.get(photoId);
+
+        if (bitmap == null) {
+            progressBar.setVisibility(View.VISIBLE);
+
+            AndroidNetworking.get("https://www.wisaw.com/api/photos/" + photoId)
+                    .setPriority(Priority.HIGH)
+                    .build()
+                    .getAsJSONObject(new JSONObjectRequestListener() {
+                        @Override
+                        public void onResponse(JSONObject response) {
+                            progressBar.setVisibility(View.INVISIBLE);
+
+                            // do anything with response
+
+
+                            JSONArray imageDataArray = null;
+                            try {
+                                JSONObject photoJson = response.getJSONObject("photo");
+                                JSONObject imageDataJson = photoJson.getJSONObject("imageData");
+                                imageDataArray = imageDataJson.getJSONArray("data");
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+
+                            Bitmap imageData = HomeActivity.fromJsonArray(imageDataArray);
+                            imagesCache.put(photoId, imageData);
+                            imageView.setImageBitmap(imageData);
+
+                        }
+
+                        @Override
+                        public void onError(ANError error) {
+                            progressBar.setVisibility(View.INVISIBLE);
+
+                            // handle error
+                            Log.e("++++++++++++++++++++++ ", error.getErrorBody());
+
+                        }
+                    });
+        }
+    }
+
+
+    @Override
+    public void setUserVisibleHint(boolean visible) {
+        super.setUserVisibleHint(visible);
+        if (visible && isResumed()) {
+            //Only manually call onResume if fragment is already visible
+            //Otherwise allow natural fragment lifecycle to call onResume
+            onResume();
+        }
+
+    }
 
 }
