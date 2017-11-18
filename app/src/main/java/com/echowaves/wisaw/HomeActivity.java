@@ -193,9 +193,6 @@ public class HomeActivity extends AppCompatActivity {
                                 Log.d("++++++++++++++++++++++", "onPermissionGranted");
 
 
-
-
-
                                 Dexter.withActivity((Activity) context)
                                         .withPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
                                         .withListener(new PermissionListener() {
@@ -276,22 +273,6 @@ public class HomeActivity extends AppCompatActivity {
             };
         });
     }
-
-//    private byte[] getByte(String path) {
-//        byte[] getBytes = {};
-//        try {
-//            File file = new File(path);
-//            getBytes = new byte[(int) file.length()];
-//            InputStream is = new FileInputStream(file);
-//            is.read(getBytes);
-//            is.close();
-//        } catch (FileNotFoundException e) {
-//            e.printStackTrace();
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//        return getBytes;
-//    }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         progressBar.setVisibility(View.INVISIBLE);
@@ -403,19 +384,17 @@ public class HomeActivity extends AppCompatActivity {
 
 
     public static Bitmap fromJsonArray(JSONArray array) {
-        byte[] bArray = new byte[array.length()];
+        Bitmap bitmap=null;
+        try {
+            byte[] tmp = new byte[array.length()];
 
-        for(int j= 0; j<array.length(); j++) {
-            try {
-                bArray[j] = (byte)array.getInt(j);
-            } catch (JSONException e) {
-                e.printStackTrace();
+            for (int i = 0; i < array.length(); i++) {
+                tmp[i] = (byte) (((int) array.get(i)) & 0xFF);
             }
-        }
-
-//                Log.d("++++++++++++++++++++++", "data: " + bArray);
-
-        Bitmap bitmap = BitmapFactory.decodeByteArray(bArray, 0, bArray.length);
+            bitmap = BitmapFactory.decodeByteArray(tmp, 0, tmp.length);
+        } catch (JSONException e) {
+//                e.printStackTrace();
+            }
         return bitmap;
     }
 

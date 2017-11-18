@@ -3,7 +3,9 @@ package com.echowaves.wisaw;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.v4.app.Fragment;
 import android.support.v4.util.LruCache;
 import android.support.v7.app.AlertDialog;
@@ -25,7 +27,14 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.HashMap;
+
+import static android.os.Environment.getDownloadCacheDirectory;
+import static android.os.Environment.getExternalStoragePublicDirectory;
 
 public class DetailedViewFragment extends Fragment {
     private ProgressBar progressBar;
@@ -45,31 +54,14 @@ public class DetailedViewFragment extends Fragment {
     private String photoId;
 
 
-    private static LruCache<String, Bitmap> imagesCache;
+    private FileCache imagesCache;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        // Get max available VM memory, exceeding this amount will throw an
-        // OutOfMemory exception. Stored in kilobytes as LruCache takes an
-        // int in its constructor.
-//        final int maxMemory = (int) (Runtime.getRuntime().maxMemory() / 1024);
+        imagesCache = new FileCache(this.getContext());
 
-        // Use 1/8th of the available memory for this memory cache.
-//        final int cacheSize = 1000 * 1024 * 1024;//maxMemory / 8;
-//        final int cacheSize = maxMemory / 4;
-
-        if(null == imagesCache) {
-            imagesCache = new LruCache<String, Bitmap>(100) {
-                //            @Override
-//                protected int sizeOf(String key, Bitmap bitmap) {
-//                    // The cache size will be measured in kilobytes rather than
-//                    // number of items.
-//                    return bitmap.getByteCount() / 1024;
-//                }
-            };
-        }
 
         ViewGroup view = (ViewGroup) inflater.inflate(
                 R.layout.fragment_detailed_view, container, false);
@@ -98,10 +90,8 @@ public class DetailedViewFragment extends Fragment {
             JSONObject thumbJSON = photosJSON.getJSONObject(index).getJSONObject("thumbNail");
             JSONArray dataJSON = thumbJSON.getJSONArray("data");
 
-            Bitmap bitmap;
-            synchronized (imagesCache) {
-                bitmap = imagesCache.get(photoId);
-            }
+            Bitmap bitmap = imagesCache.get(photoId);
+
 
             if (bitmap == null) {
                 bitmap = HomeActivity.fromJsonArray(dataJSON);
@@ -271,10 +261,8 @@ public class DetailedViewFragment extends Fragment {
         }
 
 
-        Bitmap bitmap;
-        synchronized (imagesCache) {
-          bitmap = imagesCache.get(photoId);
-        }
+        Bitmap bitmap = imagesCache.get(photoId);
+
 
         if (bitmap == null) {
             progressBar.setVisibility(View.VISIBLE);
@@ -300,9 +288,10 @@ public class DetailedViewFragment extends Fragment {
                             }
 
                             Bitmap imageData = HomeActivity.fromJsonArray(imageDataArray);
-                            synchronized (imagesCache) {
-                                imagesCache.put(photoId, imageData);
-                            }
+
+
+                            imagesCache.put(photoId, imageData);
+
                             imageView.setImageBitmap(imageData);
 
                         }
@@ -330,5 +319,42 @@ public class DetailedViewFragment extends Fragment {
         }
 
     }
+
+
+
+    class FileCache {
+        Context mContext;
+        File storageDir;
+
+        FileCache(Context context) {
+            mContext = context;
+            storageDir = mContext.getFilesDir();
+        }
+
+        public void put(String name, Bitmap bitmap) {
+            try {
+                File pictureFile = new File(storageDir, name);
+                FileOutputStream fos = new FileOutputStream(pictureFile);
+                bitmap.compress(Bitmap.CompressFormat.PNG, 90, fos);
+//                fos.write(bitmap.getRowBytes());
+                fos.flush();
+                fos.close();
+            } catch (FileNotFoundException e) {
+                Log.d("++++++++++++++", "File not found: " + e.getMessage());
+            } catch (IOException e) {
+                Log.d("++++++++++++++", "Error accessing file: " + e.getMessage());
+            }
+        }
+
+
+        public Bitmap get(String name) {
+            File pictureFile = new File(storageDir, name);
+            if(pictureFile.exists()) {
+                return BitmapFactory.decodeFile(pictureFile.getAbsolutePath());
+            }
+            return null;
+        }
+    }
+
 
 }
