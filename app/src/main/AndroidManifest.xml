@@ -33,20 +33,26 @@
                 tools:replace="android:resource" />
         </provider>
 
-        <activity android:name=".HomeActivity">
+        <activity android:name=".HomeActivity"
+            android:configChanges="orientation|screenSize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".DetailedViewFragment" />
+        <activity android:name=".DetailedViewFragment"
+            android:configChanges="orientation|screenSize"/>
 
         <meta-data
             android:name="io.fabric.ApiKey"
             android:value="87b4cce77e2726175a21523cd45fd311d50ec654" />
 
-        <activity android:name=".PagerActivity"></activity>
+        <activity android:name=".PagerActivity"
+            android:configChanges="orientation|screenSize">
+        </activity>
+
+
     </application>
 
 </manifest>
