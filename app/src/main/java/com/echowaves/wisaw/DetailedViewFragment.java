@@ -5,6 +5,7 @@ import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.util.LruCache;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -44,11 +45,32 @@ public class DetailedViewFragment extends Fragment {
     private String photoId;
 
 
-    private static HashMap<String, Bitmap> imagesCache = new HashMap<String, Bitmap>();
+    private static LruCache<String, Bitmap> imagesCache;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
+        // Get max available VM memory, exceeding this amount will throw an
+        // OutOfMemory exception. Stored in kilobytes as LruCache takes an
+        // int in its constructor.
+//        final int maxMemory = (int) (Runtime.getRuntime().maxMemory() / 1024);
+
+        // Use 1/8th of the available memory for this memory cache.
+//        final int cacheSize = 1000 * 1024 * 1024;//maxMemory / 8;
+//        final int cacheSize = maxMemory / 4;
+
+        if(null == imagesCache) {
+            imagesCache = new LruCache<String, Bitmap>(100) {
+                //            @Override
+//                protected int sizeOf(String key, Bitmap bitmap) {
+//                    // The cache size will be measured in kilobytes rather than
+//                    // number of items.
+//                    return bitmap.getByteCount() / 1024;
+//                }
+            };
+        }
+
         ViewGroup view = (ViewGroup) inflater.inflate(
                 R.layout.fragment_detailed_view, container, false);
 
@@ -76,7 +98,10 @@ public class DetailedViewFragment extends Fragment {
             JSONObject thumbJSON = photosJSON.getJSONObject(index).getJSONObject("thumbNail");
             JSONArray dataJSON = thumbJSON.getJSONArray("data");
 
-            Bitmap bitmap = imagesCache.get(photoId);
+            Bitmap bitmap;
+            synchronized (imagesCache) {
+                bitmap = imagesCache.get(photoId);
+            }
 
             if (bitmap == null) {
                 bitmap = HomeActivity.fromJsonArray(dataJSON);
@@ -246,7 +271,10 @@ public class DetailedViewFragment extends Fragment {
         }
 
 
-        Bitmap bitmap = imagesCache.get(photoId);
+        Bitmap bitmap;
+        synchronized (imagesCache) {
+          bitmap = imagesCache.get(photoId);
+        }
 
         if (bitmap == null) {
             progressBar.setVisibility(View.VISIBLE);
@@ -272,7 +300,9 @@ public class DetailedViewFragment extends Fragment {
                             }
 
                             Bitmap imageData = HomeActivity.fromJsonArray(imageDataArray);
-                            imagesCache.put(photoId, imageData);
+                            synchronized (imagesCache) {
+                                imagesCache.put(photoId, imageData);
+                            }
                             imageView.setImageBitmap(imageData);
 
                         }

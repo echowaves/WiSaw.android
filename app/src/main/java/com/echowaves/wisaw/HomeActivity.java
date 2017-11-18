@@ -294,6 +294,8 @@ public class HomeActivity extends AppCompatActivity {
 //    }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        progressBar.setVisibility(View.INVISIBLE);
+
         if(this.mLastLocation == null) {
             return;
         }
