@@ -44,7 +44,7 @@ public class PagerActivity extends FragmentActivity {
 
         mPager.setCurrentItem(index);
 
-        mPager.setPageTransformer(true, new DepthPageTransformer());
+//        mPager.setPageTransformer(true, new DepthPageTransformer());
 
     }
 

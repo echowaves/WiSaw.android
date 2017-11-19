@@ -99,6 +99,21 @@ public class HomeActivity extends AppCompatActivity {
 
         context = this;
 
+        File dir = context.getFilesDir();
+        String[] children = dir.list();
+        Date today = new Date();
+
+        for (int i = 0; i < children.length; i++)
+        {
+            File cachedImage = new File(dir, children[i]);
+
+            int diffInDays = (int)( (today.getTime() - cachedImage.lastModified()) /(1000 * 60 * 60 * 24) );
+            if(diffInDays>1) {
+                    cachedImage.delete();
+            }
+        }
+
+
 //        StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder(); StrictMode.setVmPolicy(builder.build());
 
         gridView = (GridView) findViewById(R.id.gridView);
