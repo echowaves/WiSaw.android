@@ -120,7 +120,7 @@ public class DetailedViewFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(context);
-                builder.setMessage("The user who posted this photo wlll be baned. Are you sure?")
+                builder.setMessage("The user who posted this photo will be banned. Are you sure?")
                         .setNegativeButton("Report", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
