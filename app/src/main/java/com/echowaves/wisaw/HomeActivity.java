@@ -108,7 +108,7 @@ public class HomeActivity extends AppCompatActivity {
             File cachedImage = new File(dir, children[i]);
 
             int diffInDays = (int)( (today.getTime() - cachedImage.lastModified()) /(1000 * 60 * 60 * 24) );
-            if(diffInDays>1) {
+            if(diffInDays>=1) {
                     cachedImage.delete();
             }
         }

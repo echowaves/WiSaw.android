@@ -32,6 +32,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.concurrent.Executors;
 
 import static android.os.Environment.getDownloadCacheDirectory;
 import static android.os.Environment.getExternalStoragePublicDirectory;
@@ -266,9 +267,10 @@ public class DetailedViewFragment extends Fragment {
 
         if (bitmap == null) {
             progressBar.setVisibility(View.VISIBLE);
-
+            AndroidNetworking.forceCancelAll();
             AndroidNetworking.get("https://www.wisaw.com/api/photos/" + photoId)
-                    .setPriority(Priority.LOW)
+                    .setPriority(Priority.HIGH)
+//                    .setExecutor(Executors.newSingleThreadExecutor())
                     .build()
                     .getAsJSONObject(new JSONObjectRequestListener() {
                         @Override
