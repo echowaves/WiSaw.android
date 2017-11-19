@@ -136,7 +136,7 @@ public class DetailedViewFragment extends Fragment {
                                 AndroidNetworking.post("https://www.wisaw.com/api/abusereport")
                                         .addJSONObjectBody(parametersJSON)
                                         .setContentType("application/json")
-                                        .setPriority(Priority.LOW)
+                                        .setPriority(Priority.HIGH)
                                         .build()
                                         .getAsJSONObject(new JSONObjectRequestListener() {
                                             @Override
@@ -149,7 +149,7 @@ public class DetailedViewFragment extends Fragment {
                                                 progressBar.setVisibility(View.VISIBLE);
                                                 AndroidNetworking.delete("https://www.wisaw.com/api/photos/" + photoId)
                                                         .setContentType("application/json")
-                                                        .setPriority(Priority.LOW)
+                                                        .setPriority(Priority.HIGH)
                                                         .build()
                                                         .getAsJSONObject(new JSONObjectRequestListener() {
                                                             @Override
@@ -210,7 +210,7 @@ public class DetailedViewFragment extends Fragment {
                                 progressBar.setVisibility(View.VISIBLE);
                                 AndroidNetworking.delete("https://www.wisaw.com/api/photos/" + photoId)
                                         .setContentType("application/json")
-                                        .setPriority(Priority.LOW)
+                                        .setPriority(Priority.HIGH)
                                         .build()
                                         .getAsJSONObject(new JSONObjectRequestListener() {
                                             @Override
@@ -267,9 +267,10 @@ public class DetailedViewFragment extends Fragment {
 
         if (bitmap == null) {
             progressBar.setVisibility(View.VISIBLE);
-            AndroidNetworking.cancelAll();
+            AndroidNetworking.cancel("download");
             AndroidNetworking.get("https://www.wisaw.com/api/photos/" + photoId)
                     .setPriority(Priority.HIGH)
+                    .setTag("download")
 //                    .setExecutor(Executors.newSingleThreadExecutor())
                     .build()
                     .getAsJSONObject(new JSONObjectRequestListener() {
