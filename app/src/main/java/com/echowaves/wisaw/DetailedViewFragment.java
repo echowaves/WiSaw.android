@@ -267,7 +267,7 @@ public class DetailedViewFragment extends Fragment {
 
         if (bitmap == null) {
             progressBar.setVisibility(View.VISIBLE);
-            AndroidNetworking.forceCancelAll();
+            AndroidNetworking.cancelAll();
             AndroidNetworking.get("https://www.wisaw.com/api/photos/" + photoId)
                     .setPriority(Priority.HIGH)
 //                    .setExecutor(Executors.newSingleThreadExecutor())
