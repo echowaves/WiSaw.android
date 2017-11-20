@@ -6,7 +6,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.location.Location;
+import android.media.ExifInterface;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Bundle;
@@ -289,15 +291,25 @@ public class HomeActivity extends AppCompatActivity {
         });
     }
 
+
+    private static Bitmap rotateImage(Bitmap img, int degree) {
+        Matrix matrix = new Matrix();
+        matrix.postRotate(degree);
+        Bitmap rotatedImg = Bitmap.createBitmap(img, 0, 0, img.getWidth(), img.getHeight(), matrix, true);
+        return rotatedImg;
+    }
+
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         progressBar.setVisibility(View.INVISIBLE);
 
         if(this.mLastLocation == null) {
             return;
         }
+
         if(requestCode == PAGER_REQUEST) {
             loadImages();
         }
+
 
         if (requestCode == CAMERA_REQUEST && resultCode == RESULT_OK) {
 
@@ -307,6 +319,8 @@ public class HomeActivity extends AppCompatActivity {
                         public void onScanCompleted(String path, Uri uri) {
                         }
                     });
+
+
 
 
             JSONArray imageJSON = new JSONArray();
@@ -322,11 +336,39 @@ public class HomeActivity extends AppCompatActivity {
                 parametersJSON.put("location", locationJSON);
 
 
-
-
                 Bitmap bmp = BitmapFactory.decodeFile(mCurrentPhotoPath);
+
+                ExifInterface ei = null;
+                try {
+                    ei = new ExifInterface(mCurrentPhotoPath);
+
+                    int orientation = ei.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+
+
+                    switch (orientation) {
+                        case ExifInterface.ORIENTATION_ROTATE_90:
+                            bmp = rotateImage(bmp, 90);
+                        case ExifInterface.ORIENTATION_ROTATE_180:
+                            bmp = rotateImage(bmp, 180);
+                        case ExifInterface.ORIENTATION_ROTATE_270:
+                            bmp = rotateImage(bmp, 270);
+
+                    }
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+
+
                 ByteArrayOutputStream bos = new ByteArrayOutputStream();
                 bmp.compress(Bitmap.CompressFormat.JPEG, 70, bos);
+
+
+
+
+
+
                 byte[] bytes = bos.toByteArray();
 
 
