@@ -5,15 +5,12 @@ import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.v4.app.Fragment;
-import android.support.v4.util.LruCache;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -31,11 +28,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.concurrent.Executors;
 
-import static android.os.Environment.getDownloadCacheDirectory;
-import static android.os.Environment.getExternalStoragePublicDirectory;
 
 public class DetailedViewFragment extends Fragment {
     private ProgressBar progressBar;
@@ -43,7 +36,7 @@ public class DetailedViewFragment extends Fragment {
     TextView cancelButton;
     TextView reportAbuseButton;
     TextView deleteButton;
-    ImageView imageView;
+    TouchImageView imageView;
 
     Context context;
 
