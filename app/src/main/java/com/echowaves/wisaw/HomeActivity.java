@@ -292,11 +292,12 @@ public class HomeActivity extends AppCompatActivity {
     }
 
 
-    private static Bitmap rotateImage(Bitmap img, int degree) {
+
+    private static Bitmap rotateImage(Bitmap source, float angle) {
         Matrix matrix = new Matrix();
-        matrix.postRotate(degree);
-        Bitmap rotatedImg = Bitmap.createBitmap(img, 0, 0, img.getWidth(), img.getHeight(), matrix, true);
-        return rotatedImg;
+        matrix.postRotate(angle);
+        return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(),
+                matrix, true);
     }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -338,31 +339,35 @@ public class HomeActivity extends AppCompatActivity {
 
                 Bitmap bmp = BitmapFactory.decodeFile(mCurrentPhotoPath);
 
-                ExifInterface ei = null;
-                try {
-                    ei = new ExifInterface(mCurrentPhotoPath);
-
-                    int orientation = ei.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
 
 
-                    switch (orientation) {
-                        case ExifInterface.ORIENTATION_ROTATE_90:
-                            bmp = rotateImage(bmp, 90);
-                        case ExifInterface.ORIENTATION_ROTATE_180:
-                            bmp = rotateImage(bmp, 180);
-                        case ExifInterface.ORIENTATION_ROTATE_270:
-                            bmp = rotateImage(bmp, 270);
+                ExifInterface ei = new ExifInterface(mCurrentPhotoPath);
+                int orientation = ei.getAttributeInt(ExifInterface.TAG_ORIENTATION,
+                        ExifInterface.ORIENTATION_UNDEFINED);
 
-                    }
+                Bitmap rotatedBitmap = null;
+                switch(orientation) {
 
-                } catch (IOException e) {
-                    e.printStackTrace();
+                    case ExifInterface.ORIENTATION_ROTATE_90:
+                        rotatedBitmap = rotateImage(bmp, 90);
+                        break;
+
+                    case ExifInterface.ORIENTATION_ROTATE_180:
+                        rotatedBitmap = rotateImage(bmp, 180);
+                        break;
+
+                    case ExifInterface.ORIENTATION_ROTATE_270:
+                        rotatedBitmap = rotateImage(bmp, 270);
+                        break;
+
+                    case ExifInterface.ORIENTATION_NORMAL:
+                    default:
+                        rotatedBitmap = bmp;
                 }
 
 
-
                 ByteArrayOutputStream bos = new ByteArrayOutputStream();
-                bmp.compress(Bitmap.CompressFormat.JPEG, 70, bos);
+                rotatedBitmap.compress(Bitmap.CompressFormat.JPEG, 70, bos);
 
 
 
@@ -380,6 +385,8 @@ public class HomeActivity extends AppCompatActivity {
                 parametersJSON.put("imageData", imageJSON);
 
             } catch (JSONException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
                 e.printStackTrace();
             }
 
@@ -528,8 +535,11 @@ public class HomeActivity extends AppCompatActivity {
 
 //                            Log.d("++++++++++++++++++++++", photosJSON.toString());
 
-                            gridAdapter = new GridViewAdapter(context, R.layout.grid_item_layout, getData());
-                            gridView.setAdapter(gridAdapter);
+//                          gridAdapter  = new GridViewAdapter(context, R.layout.grid_item_layout, getData());
+//                            gridView.setAdapter(gridAdapter);
+                            gridAdapter.clear();
+                            gridAdapter.addAll(getData());
+                            gridAdapter.notifyDataSetChanged();
 
                         } catch (JSONException e) {
                             e.printStackTrace();

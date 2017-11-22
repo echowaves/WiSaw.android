@@ -38,8 +38,8 @@ android {
         applicationId "com.echowaves.wisaw"
         minSdkVersion 21
         targetSdkVersion 26
-        versionCode 23
-        versionName "1.2.15"
+        versionCode 24
+        versionName "1.2.16"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {

@@ -37,6 +37,7 @@ public class PagerActivity extends FragmentActivity {
 
         mPagerAdapter = new PagerAdapter(getSupportFragmentManager());
         mPager.setAdapter(mPagerAdapter);
+//        mPagerAdapter.notifyDataSetChanged();
 
 
         Intent myIntent = getIntent(); // gets the previously created intent
