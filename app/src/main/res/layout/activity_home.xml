@@ -34,17 +34,6 @@
                 android:layout_centerVertical="true"
                 android:layout_centerHorizontal="true" />
 
-            <TextView
-                android:id="@+id/btnCapture"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentEnd="true"
-                android:textSize="30sp"
-                android:layout_margin="5sp"
-                android:layout_alignParentTop="true"
-                android:text="{fa-camera}"
-                android:layout_alignParentRight="true" />
-
         </RelativeLayout>
 
     <android.support.v4.widget.SwipeRefreshLayout
@@ -74,5 +63,15 @@
 
     </android.support.v4.widget.SwipeRefreshLayout>
 
+    <TextView
+        android:id="@+id/btnCapture"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="50sp"
+        android:layout_margin="5sp"
+        android:layout_alignParentBottom="true"
+        android:text="{fa-camera}"
+        android:layout_centerHorizontal="true"
+         />
 
 </RelativeLayout>
