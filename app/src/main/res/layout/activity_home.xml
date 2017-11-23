@@ -3,38 +3,36 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-        android:id="@+id/activity_home"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        >
+    android:id="@+id/activity_home"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
     <ProgressBar
         android:id="@+id/progressBar_cyclic"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:minHeight="50dp"
-        android:minWidth="50dp"
+        android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
-        android:layout_centerHorizontal="true" />
+        android:minHeight="50dp"
+        android:minWidth="50dp" />
 
 
+    <RelativeLayout
+        android:id="@+id/relativeLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="2sp"
+        android:orientation="horizontal">
 
-        <RelativeLayout
-            android:layout_width="match_parent"
+        <TextView
+            android:id="@+id/textView2"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_margin="2sp"
-            android:id="@+id/relativeLayout">
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:text="What's near me today" />
 
-            <TextView
-                android:id="@+id/textView2"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="What's near me today"
-                android:layout_centerVertical="true"
-                android:layout_centerHorizontal="true" />
-
-        </RelativeLayout>
+    </RelativeLayout>
 
     <android.support.v4.widget.SwipeRefreshLayout
         android:id="@+id/activity_main_swipe_refresh_layout"
@@ -65,13 +63,17 @@
 
     <TextView
         android:id="@+id/btnCapture"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="50sp"
-        android:layout_margin="5sp"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
         android:layout_alignParentBottom="true"
-        android:text="{fa-camera}"
         android:layout_centerHorizontal="true"
-         />
+        android:layout_margin="5sp"
+        android:background="@drawable/round_background"
+        android:text="{fa-camera}"
+        android:textAlignment="center"
+        android:gravity="center"
+        android:textSize="30dp"
+
+        />
 
 </RelativeLayout>
