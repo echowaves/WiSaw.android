@@ -80,5 +80,13 @@ dependencies {
     }
     compile 'com.github.DamanSingh4321:ProProgressViews:v1.1'
 
+    // branch.io
+    // required
+    compile 'io.branch.sdk.android:library:2.+'
+
+    // optional
+    compile 'com.android.support:customtabs:23.3.0' // Chrome Tab matching
+    compile 'com.google.android.gms:play-services-ads:9+' // GAID matching
+    compile 'com.google.android.gms:play-services-appindexing:9.+' // App indexing
 
 }
