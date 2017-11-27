@@ -41,6 +41,7 @@ android {
         versionCode 26
         versionName "1.2.18"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        multiDexEnabled true
     }
     buildTypes {
         release {
@@ -82,11 +83,13 @@ dependencies {
 
     // branch.io
     // required
-    compile 'io.branch.sdk.android:library:2.+'
+    compile ('io.branch.sdk.android:library:2.+') {
+        transitive = true;
+    }
 
     // optional
-    compile 'com.android.support:customtabs:23.3.0' // Chrome Tab matching
-    compile 'com.google.android.gms:play-services-ads:9+' // GAID matching
-    compile 'com.google.android.gms:play-services-appindexing:9.+' // App indexing
+//    compile 'com.android.support:customtabs:23.3.0' // Chrome Tab matching
+//    compile 'com.google.android.gms:play-services-ads:9+' // GAID matching
+//    compile 'com.google.android.gms:play-services-appindexing:9.+' // App indexing
 
 }

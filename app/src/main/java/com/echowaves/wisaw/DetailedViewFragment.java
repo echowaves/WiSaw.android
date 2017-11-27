@@ -28,6 +28,14 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Calendar;
+
+import io.branch.indexing.BranchUniversalObject;
+import io.branch.referral.Branch;
+import io.branch.referral.BranchError;
+import io.branch.referral.SharingHelper;
+import io.branch.referral.util.LinkProperties;
+import io.branch.referral.util.ShareSheetStyle;
 
 
 public class DetailedViewFragment extends Fragment {
@@ -36,6 +44,7 @@ public class DetailedViewFragment extends Fragment {
     TextView cancelButton;
     TextView reportAbuseButton;
     TextView deleteButton;
+    TextView shareButton;
     TouchImageView imageView;
 
     Context context;
@@ -99,6 +108,7 @@ public class DetailedViewFragment extends Fragment {
         }
 
         context = getActivity();
+
         cancelButton = view.findViewById(R.id.btnCancel);
         cancelButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -236,7 +246,65 @@ public class DetailedViewFragment extends Fragment {
         });
 
 
-//        progressBar.setVisibility(View.VISIBLE);
+        shareButton = view.findViewById(R.id.btnShare);
+        shareButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                BranchUniversalObject buo = new BranchUniversalObject()
+                        .setCanonicalIdentifier("photo/" + photoId)
+                        .setTitle("Photo " + photoId + " shared")
+//                        .setContentDescription("My Content Description")
+//                        .setContentImageUrl("https://lorempixel.com/400/400")
+                        .setContentIndexingMode(BranchUniversalObject.CONTENT_INDEX_MODE.PRIVATE)
+//                        .setLocalIndexingMode(BranchUniversalObject.CONTENT_INDEX_MODE.PUBLIC)
+//                        .setContentMetadata(new ContentMetadata().addCustomMetadata("key1", "value1"));
+
+                        ;
+
+
+                LinkProperties lp = new LinkProperties()
+                        .setChannel("direct")
+                        .setFeature("sharing")
+                        .setCampaign("photo sharing")
+//                        .setStage("new user")
+//                        .addControlParameter("$desktop_url", "http://example.com/home")
+//                        .addControlParameter("custom", "data")
+//                        .addControlParameter("custom_random", Long.toString(Calendar.getInstance().getTimeInMillis()));
+                        .addControlParameter("$photo_id", photoId)
+
+                        ;
+
+                ShareSheetStyle ss = new ShareSheetStyle(context, "Check out", "Check out what I saw today: ")
+//                        .setCopyUrlStyle(ContextCompat.getDrawable(this, android.R.drawable.ic_menu_send), "Copy", "Added to clipboard")
+//                        .setMoreOptionStyle(ContextCompat.getDrawable(this, android.R.drawable.ic_menu_search), "Show more")
+//                        .addPreferredSharingOption(SharingHelper.SHARE_WITH.FACEBOOK)
+                        .addPreferredSharingOption(SharingHelper.SHARE_WITH.EMAIL)
+                        .addPreferredSharingOption(SharingHelper.SHARE_WITH.MESSAGE)
+//                        .addPreferredSharingOption(SharingHelper.SHARE_WITH.HANGOUT)
+                        .setAsFullWidthStyle(true)
+//                        .setSharingTitle("Share With")
+                        ;
+
+                buo.showShareSheet(getActivity(), lp,  ss,  new Branch.BranchLinkShareListener() {
+                    @Override
+                    public void onShareLinkDialogLaunched() {
+                    }
+                    @Override
+                    public void onShareLinkDialogDismissed() {
+                    }
+                    @Override
+                    public void onLinkShareResponse(String sharedLink, String sharedChannel, BranchError error) {
+                    }
+                    @Override
+                    public void onChannelSelected(String channelName) {
+                    }
+                });
+
+
+
+            }
+        });
 
         FontAwesome.applyToAllViews(view.getContext(), view.findViewById(R.id.activity_details));
 
