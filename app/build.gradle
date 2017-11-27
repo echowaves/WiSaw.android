@@ -38,8 +38,8 @@ android {
         applicationId "com.echowaves.wisaw"
         minSdkVersion 21
         targetSdkVersion 26
-        versionCode 26
-        versionName "1.2.18"
+        versionCode 27
+        versionName "2.0.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
     }
@@ -83,7 +83,7 @@ dependencies {
 
     // branch.io
     // required
-    compile ('io.branch.sdk.android:library:2.+') {
+    compile('io.branch.sdk.android:library:2.+') {
         transitive = true;
     }
 

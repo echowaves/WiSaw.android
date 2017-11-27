@@ -4,6 +4,7 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
@@ -88,11 +89,35 @@ public class HomeActivity extends AppCompatActivity {
         super.onStart();
 
         // Branch init
+        // listener (within Main Activity's onStart)
         Branch.getInstance().initSession(new Branch.BranchReferralInitListener() {
             @Override
             public void onInitFinished(JSONObject referringParams, BranchError error) {
+
                 if (error == null) {
                     Log.i("BRANCH SDK", referringParams.toString());
+                } else {
+                    Log.i("BRANCH SDK", error.getMessage());
+                }
+
+
+                if (error == null) {
+
+                    // option 3: navigate to page
+                    Intent intent = new Intent(HomeActivity.this, SharingActivity.class);
+                    try {
+                        intent.putExtra("photoId", referringParams.getString("$photo_id"));
+                        startActivity(intent);
+                    } catch (JSONException e) {
+//                        Toast toast = Toast.makeText(getApplicationContext(), "Sorry, looks like something went wrong.",
+//                                Toast.LENGTH_SHORT);
+//                        toast.setGravity(Gravity.CENTER, 0, 0);
+//                        toast.show();
+
+                        e.printStackTrace();
+                    }
+
+
                 } else {
                     Log.i("BRANCH SDK", error.getMessage());
                 }

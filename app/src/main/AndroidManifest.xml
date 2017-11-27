@@ -15,15 +15,14 @@
         android:required="true" />
 
     <application
+        android:name=".ApplicationClass"
         android:allowBackup="true"
-        android:name="com.echowaves.wisaw.ApplicationClass"
-
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
+        android:largeHeap="true"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.AppCompat.DayNight.NoActionBar"
-        android:largeHeap="true">
+        android:theme="@style/Theme.AppCompat.DayNight.NoActionBar">
         <provider
             android:name="android.support.v4.content.FileProvider"
             android:authorities="${applicationId}.provider"
@@ -36,9 +35,10 @@
                 tools:replace="android:resource" />
         </provider>
 
-        <activity android:name=".HomeActivity"
-            android:launchMode="singleTask"
+        <activity
+            android:name=".HomeActivity"
             android:configChanges="orientation|screenSize"
+            android:launchMode="singleTask"
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -46,11 +46,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
 
-
             <!-- Branch URI Scheme -->
             <intent-filter>
                 <data android:scheme="wisaw" />
+
                 <action android:name="android.intent.action.VIEW" />
+
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
             </intent-filter>
@@ -58,38 +59,51 @@
             <!-- Branch App Links (optional) -->
             <intent-filter android:autoVerify="true">
                 <action android:name="android.intent.action.VIEW" />
+
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="https" android:host="link.wisaw.com" />
-                <data android:scheme="https" android:host="link-alternate.wisaw.com" />
+
+                <data
+                    android:host="link.wisaw.com"
+                    android:scheme="https" />
+                <data
+                    android:host="link-alternate.wisaw.com"
+                    android:scheme="https" />
             </intent-filter>
         </activity>
-        <activity android:name=".DetailedViewFragment"
-            android:configChanges="orientation|screenSize"/>
+        <activity
+            android:name=".DetailedViewFragment"
+            android:configChanges="orientation|screenSize" />
 
         <meta-data
             android:name="io.fabric.ApiKey"
             android:value="87b4cce77e2726175a21523cd45fd311d50ec654" />
 
-        <activity android:name=".PagerActivity"
-            android:configChanges="orientation|screenSize">
-        </activity>
-
-
+        <activity
+            android:name=".PagerActivity"
+            android:configChanges="orientation|screenSize"></activity>
 
         <!-- Branch init -->
-        <meta-data android:name="io.branch.sdk.BranchKey" android:value="key_live_bfxOER1DaZ6pQzOMj9chBffdwFaB8vg4" />
-        <meta-data android:name="io.branch.sdk.BranchKey.test" android:value="key_test_ncxIvG6Bj2YfGsUUo0nBxjfmvtnA6wxp" />
-        <meta-data android:name="io.branch.sdk.TestMode" android:value="false" />
+        <meta-data
+            android:name="io.branch.sdk.BranchKey"
+            android:value="key_live_bfxOER1DaZ6pQzOMj9chBffdwFaB8vg4" />
+        <meta-data
+            android:name="io.branch.sdk.BranchKey.test"
+            android:value="key_test_ncxIvG6Bj2YfGsUUo0nBxjfmvtnA6wxp" />
+        <meta-data
+            android:name="io.branch.sdk.TestMode"
+            android:value="false" />
 
         <!-- Branch install referrer tracking (optional) -->
-        <receiver android:name="io.branch.referral.InstallListener" android:exported="true">
+        <receiver
+            android:name="io.branch.referral.InstallListener"
+            android:exported="true">
             <intent-filter>
                 <action android:name="com.android.vending.INSTALL_REFERRER" />
             </intent-filter>
         </receiver>
 
-
+        <activity android:name=".SharingActivity"></activity>
     </application>
 
 </manifest>
