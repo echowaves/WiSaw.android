@@ -265,7 +265,7 @@ public class DetailedViewFragment extends Fragment {
                 .setCanonicalIdentifier("photo/" + photoId)
                 .setTitle("Photo " + photoId + " shared")
 //                        .setContentDescription("My Content Description")
-//                        .setContentImageUrl("https://lorempixel.com/400/400")
+                        .setContentImageUrl("https://www.wisaw.com/api/photos/" + photoId + "/thumb")
                 .setContentIndexingMode(BranchUniversalObject.CONTENT_INDEX_MODE.PRIVATE)
 //                        .setLocalIndexingMode(BranchUniversalObject.CONTENT_INDEX_MODE.PUBLIC)
 //                        .setContentMetadata(new ContentMetadata().addCustomMetadata("key1", "value1"));
