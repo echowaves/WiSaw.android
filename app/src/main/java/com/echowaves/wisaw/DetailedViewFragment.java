@@ -263,11 +263,11 @@ public class DetailedViewFragment extends Fragment {
     public static void share(String photoId, Activity activity) {
         BranchUniversalObject buo = new BranchUniversalObject()
                 .setCanonicalIdentifier("photo/" + photoId)
-                .setTitle("Photo " + photoId + " shared")
-//                        .setContentDescription("My Content Description")
-                        .setContentImageUrl("https://www.wisaw.com/api/photos/" + photoId + "/thumb")
-                .setContentIndexingMode(BranchUniversalObject.CONTENT_INDEX_MODE.PRIVATE)
-//                        .setLocalIndexingMode(BranchUniversalObject.CONTENT_INDEX_MODE.PUBLIC)
+                .setTitle("What I saw today:")
+                .setContentDescription("Photo " + photoId + " shared")
+                .setContentImageUrl("https://www.wisaw.com/api/photos/" + photoId + "/thumb")
+                .setContentIndexingMode(BranchUniversalObject.CONTENT_INDEX_MODE.PUBLIC)
+                .setLocalIndexMode(BranchUniversalObject.CONTENT_INDEX_MODE.PUBLIC)
 //                        .setContentMetadata(new ContentMetadata().addCustomMetadata("key1", "value1"));
 
                 ;
