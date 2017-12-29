@@ -32,6 +32,14 @@
             android:layout_centerVertical="true"
             android:text="What's near me today" />
 
+        <TextView
+            android:id="@+id/uploadCounterButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_margin="5sp"
+            android:layout_alignParentTop="true"
+            android:text="0" />
     </RelativeLayout>
 
     <android.support.v4.widget.SwipeRefreshLayout

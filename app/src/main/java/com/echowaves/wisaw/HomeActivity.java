@@ -23,6 +23,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
+import android.view.animation.LinearInterpolator;
 import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.ProgressBar;
@@ -63,6 +66,9 @@ import static android.os.Environment.getExternalStoragePublicDirectory;
 
 
 public class HomeActivity extends AppCompatActivity {
+
+    private TextView uploadCounterButton;
+
     private ProgressBar progressBar;
 
     private SwipeRefreshLayout mSwipeRefreshLayout;
@@ -248,7 +254,7 @@ public class HomeActivity extends AppCompatActivity {
 
 
 
-        TextView capture = (TextView) findViewById(R.id.btnCapture);
+        TextView capture = findViewById(R.id.btnCapture);
         capture.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
 
@@ -324,12 +330,8 @@ public class HomeActivity extends AppCompatActivity {
                             }
 
                         }).check();
-
-
             }
         });
-
-
 
         mSwipeRefreshLayout = findViewById(R.id.activity_main_swipe_refresh_layout);
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
@@ -337,8 +339,17 @@ public class HomeActivity extends AppCompatActivity {
             public void onRefresh() {
                 mSwipeRefreshLayout.setRefreshing(false);
                 loadImages();
-            };
+            }
         });
+
+
+        uploadCounterButton = findViewById(R.id.uploadCounterButton);
+        final Animation animation = new AlphaAnimation(1, (float)0.1); // Change alpha from fully visible to invisible
+        animation.setDuration(500); // duration - half a second
+        animation.setInterpolator(new LinearInterpolator()); // do not alter animation rate
+        animation.setRepeatCount(Animation.INFINITE); // Repeat animation infinitely
+        animation.setRepeatMode(Animation.REVERSE); // Reverse animation at the end so the button will fade back in
+        uploadCounterButton.startAnimation(animation);
     }
 
 
@@ -370,9 +381,6 @@ public class HomeActivity extends AppCompatActivity {
                         public void onScanCompleted(String path, Uri uri) {
                         }
                     });
-
-
-
 
             JSONArray imageJSON = new JSONArray();
             JSONArray coordinatesJSON = new JSONArray();
@@ -417,11 +425,7 @@ public class HomeActivity extends AppCompatActivity {
 
 
                 ByteArrayOutputStream bos = new ByteArrayOutputStream();
-                rotatedBitmap.compress(Bitmap.CompressFormat.JPEG, 70, bos);
-
-
-
-
+                rotatedBitmap.compress(Bitmap.CompressFormat.PNG, 70, bos);
 
 
                 byte[] bytes = bos.toByteArray();
@@ -482,11 +486,11 @@ public class HomeActivity extends AppCompatActivity {
     private File createImageFile() throws IOException {
         // Create an image file name
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        String imageFileName = "JPEG_" + timeStamp + "_";
+        String imageFileName = "wisaw-new-" + timeStamp;
         File storageDir = getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
         File image = File.createTempFile(
                 imageFileName,  /* prefix */
-                ".jpg",         /* suffix */
+                ".png",         /* suffix */
                 storageDir      /* directory */
         );
 

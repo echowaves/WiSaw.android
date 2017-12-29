@@ -56,17 +56,17 @@ public class SharingActivity extends AppCompatActivity {
 //    private JSONArray photosJSON = null;
 
     private String uuid;
-    private String photoId;
+    private Integer photoId;
 
 
-    private DetailedViewFragment.FileCache imagesCache;
+    private ApplicationClass.FileCache imagesCache;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sharing);
 
-        imagesCache = new DetailedViewFragment.FileCache(this);
+        imagesCache = new ApplicationClass.FileCache(this);
 
 
         imageView = findViewById(R.id.imageView);
@@ -75,7 +75,7 @@ public class SharingActivity extends AppCompatActivity {
         progressBar.bringToFront();
 
 
-        photoId = getIntent().getStringExtra("photoId");
+        photoId = new Integer(getIntent().getStringExtra("photoId"));
 
 
         context = this;

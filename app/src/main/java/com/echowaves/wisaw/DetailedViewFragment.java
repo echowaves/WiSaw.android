@@ -55,16 +55,16 @@ public class DetailedViewFragment extends Fragment {
     private JSONArray photosJSON = null;
 
     private String uuid;
-    private String photoId;
+    private Integer photoId;
 
 
-    private FileCache imagesCache;
+    private ApplicationClass.FileCache imagesCache;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        imagesCache = new FileCache(this.getContext());
+        imagesCache = new ApplicationClass.FileCache(this.getContext());
 
 
         ViewGroup view = (ViewGroup) inflater.inflate(
@@ -87,7 +87,7 @@ public class DetailedViewFragment extends Fragment {
 
             JSONObject photoJSON = null;
             photoJSON = photosJSON.getJSONObject(index);
-            photoId = photoJSON.getString("id");
+            photoId = photoJSON.getInt("id");
             uuid = photoJSON.getString("uuid");
 
 
@@ -260,7 +260,7 @@ public class DetailedViewFragment extends Fragment {
         return view;
     }
 
-    public static void share(String photoId, Activity activity) {
+    public static void share(Integer photoId, Activity activity) {
         BranchUniversalObject buo = new BranchUniversalObject()
                 .setCanonicalIdentifier("photo/" + photoId)
                 .setTitle("What I saw today:")
@@ -281,7 +281,7 @@ public class DetailedViewFragment extends Fragment {
 //                        .addControlParameter("$desktop_url", "http://example.com/home")
 //                        .addControlParameter("custom", "data")
 //                        .addControlParameter("custom_random", Long.toString(Calendar.getInstance().getTimeInMillis()));
-                .addControlParameter("$photo_id", photoId)
+                .addControlParameter("$photo_id", photoId.toString())
 
                 ;
 
@@ -383,41 +383,6 @@ public class DetailedViewFragment extends Fragment {
             onResume();
         }
 
-    }
-
-
-    public static class FileCache {
-        Context mContext;
-        File storageDir;
-
-        FileCache(Context context) {
-            mContext = context;
-            storageDir = mContext.getFilesDir();
-        }
-
-        public void put(String name, Bitmap bitmap) {
-            try {
-                File pictureFile = new File(storageDir, name);
-                FileOutputStream fos = new FileOutputStream(pictureFile);
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
-//                fos.write(bitmap.getRowBytes());
-                fos.flush();
-                fos.close();
-            } catch (FileNotFoundException e) {
-                Log.d("++++++++++++++", "File not found: " + e.getMessage());
-            } catch (IOException e) {
-                Log.d("++++++++++++++", "Error accessing file: " + e.getMessage());
-            }
-        }
-
-
-        public Bitmap get(String name) {
-            File pictureFile = new File(storageDir, name);
-            if (pictureFile.exists()) {
-                return BitmapFactory.decodeFile(pictureFile.getAbsolutePath());
-            }
-            return null;
-        }
     }
 
 
