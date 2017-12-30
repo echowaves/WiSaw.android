@@ -39,7 +39,7 @@
             android:layout_alignParentEnd="true"
             android:layout_margin="5sp"
             android:layout_alignParentTop="true"
-            android:text="0" />
+            android:text="" />
     </RelativeLayout>
 
     <android.support.v4.widget.SwipeRefreshLayout

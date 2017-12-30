@@ -4,7 +4,6 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
@@ -50,10 +49,14 @@ import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 import io.branch.referral.Branch;
@@ -61,6 +64,7 @@ import io.branch.referral.BranchError;
 import io.fabric.sdk.android.Fabric;
 import io.nlopez.smartlocation.OnLocationUpdatedListener;
 import io.nlopez.smartlocation.SmartLocation;
+import io.nlopez.smartlocation.location.config.LocationParams;
 
 import static android.os.Environment.getExternalStoragePublicDirectory;
 
@@ -78,6 +82,7 @@ public class HomeActivity extends AppCompatActivity {
     private Location mLastLocation;
 
     Context context;
+    private File cacheDir;
 
     public static JSONArray photosJSON; //TODO: do not know what to go about public static, will have to figure something out later
 
@@ -157,13 +162,14 @@ public class HomeActivity extends AppCompatActivity {
 
         context = this;
 
-        File dir = context.getFilesDir();
-        String[] children = dir.list();
+        cacheDir = context.getFilesDir();
+
+        String[] children = cacheDir.list();
         Date today = new Date();
 
         for (int i = 0; i < children.length; i++)
         {
-            File cachedImage = new File(dir, children[i]);
+            File cachedImage = new File(cacheDir, children[i]);
 
             int diffInDays = (int)( (today.getTime() - cachedImage.lastModified()) /(1000 * 60 * 60 * 24) );
             if(diffInDays>=1) {
@@ -224,6 +230,7 @@ public class HomeActivity extends AppCompatActivity {
                                 .with(context)
                                 .location()
                                 .continuous()
+                                .config(LocationParams.BEST_EFFORT)
 //                                .config(builder.build())
                                 .start(new OnLocationUpdatedListener() {
                                     @Override
@@ -274,13 +281,13 @@ public class HomeActivity extends AppCompatActivity {
                                                 Log.d("++++++++++++++++++++++", "onPermissionGranted");
 
 
-
                                                 Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+//                                                takePictureIntent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
 
 
                                                 // Continue only if the File was successfully created
 
-                                                    Log.d("mylog", "Photofile not null");
+                                                Log.d("mylog", "Photofile not null");
                                                 Uri photoURI = null;
                                                 try {
                                                     photoURI = FileProvider.getUriForFile(HomeActivity.this,
@@ -354,13 +361,6 @@ public class HomeActivity extends AppCompatActivity {
 
 
 
-    private static Bitmap rotateImage(Bitmap source, float angle) {
-        Matrix matrix = new Matrix();
-        matrix.postRotate(angle);
-        return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(),
-                matrix, true);
-    }
-
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         progressBar.setVisibility(View.INVISIBLE);
 
@@ -375,111 +375,196 @@ public class HomeActivity extends AppCompatActivity {
 
         if (requestCode == CAMERA_REQUEST && resultCode == RESULT_OK) {
 
-            MediaScannerConnection.scanFile(context,
-                    new String[] { mCurrentPhotoPath }, null,
-                    new MediaScannerConnection.OnScanCompletedListener() {
-                        public void onScanCompleted(String path, Uri uri) {
-                        }
-                    });
-
-            JSONArray imageJSON = new JSONArray();
-            JSONArray coordinatesJSON = new JSONArray();
-            JSONObject locationJSON = new JSONObject();
-            JSONObject parametersJSON = new JSONObject();
-            try {
-                parametersJSON.put("uuid", uuid);
-                coordinatesJSON.put(this.mLastLocation.getLatitude());
-                coordinatesJSON.put(this.mLastLocation.getLongitude());
-                locationJSON.put("type", "Point");
-                locationJSON.put("coordinates", coordinatesJSON);
-                parametersJSON.put("location", locationJSON);
-
-
-                Bitmap bmp = BitmapFactory.decodeFile(mCurrentPhotoPath);
-
-
-
-                ExifInterface ei = new ExifInterface(mCurrentPhotoPath);
-                int orientation = ei.getAttributeInt(ExifInterface.TAG_ORIENTATION,
-                        ExifInterface.ORIENTATION_UNDEFINED);
-
-                Bitmap rotatedBitmap = null;
-                switch(orientation) {
-
-                    case ExifInterface.ORIENTATION_ROTATE_90:
-                        rotatedBitmap = rotateImage(bmp, 90);
-                        break;
-
-                    case ExifInterface.ORIENTATION_ROTATE_180:
-                        rotatedBitmap = rotateImage(bmp, 180);
-                        break;
-
-                    case ExifInterface.ORIENTATION_ROTATE_270:
-                        rotatedBitmap = rotateImage(bmp, 270);
-                        break;
-
-                    case ExifInterface.ORIENTATION_NORMAL:
-                    default:
-                        rotatedBitmap = bmp;
-                }
-
-
-                ByteArrayOutputStream bos = new ByteArrayOutputStream();
-                rotatedBitmap.compress(Bitmap.CompressFormat.PNG, 70, bos);
-
-
-                byte[] bytes = bos.toByteArray();
-
-
-                for(int ii=0; ii< bytes.length; ii++) {
-                    imageJSON.put(ii, bytes[ii]);
-                }
-
-
-                parametersJSON.put("imageData", imageJSON);
-
-            } catch (JSONException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
 
 //            Log.d("++++++++++++++++++++++", parametersJSON.toString());
 
-            progressBar.setVisibility(View.VISIBLE);
-            AndroidNetworking.post("https://www.wisaw.com/api/photos")
-                    .addJSONObjectBody(parametersJSON)
-                    .setContentType("application/json")
-                    .setPriority(Priority.HIGH)
-                    .build()
-                    .getAsJSONObject(new JSONObjectRequestListener() {
-                        @Override
-                        public void onResponse(JSONObject response) {
-                            // do anything with response
+            uploadImage();
+        }
+    }
 
-                            progressBar.setVisibility(View.INVISIBLE);
 
-                            Log.d("++++++++++++++++++++++", response.toString());
 
+    private synchronized void uploadImage() {
+        updateCounter();
+
+        List<File> imageFiles = getImagesToUpload();
+        if(imageFiles.size()==0) {//no files to upload found
+            return;
+        }
+
+        final File currentFile = imageFiles.get(0);
+        String imageFilePath =  currentFile.getPath();
+
+        JSONArray imageJSON = new JSONArray();
+        JSONArray coordinatesJSON = new JSONArray();
+        JSONObject locationJSON = new JSONObject();
+        JSONObject parametersJSON = new JSONObject();
+        try {
+            parametersJSON.put("uuid", uuid);
+            coordinatesJSON.put(this.mLastLocation.getLatitude());
+            coordinatesJSON.put(this.mLastLocation.getLongitude());
+            locationJSON.put("type", "Point");
+            locationJSON.put("coordinates", coordinatesJSON);
+            parametersJSON.put("location", locationJSON);
+
+            Bitmap bmp = BitmapFactory.decodeFile(imageFilePath);
+
+            Bitmap rotatedBitmap = imageOrientation(bmp, imageFilePath);
+
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            rotatedBitmap.compress(Bitmap.CompressFormat.PNG, 70, bos);
+
+            byte[] bytes = bos.toByteArray();
+
+
+            for(int ii=0; ii< bytes.length; ii++) {
+                imageJSON.put(ii, bytes[ii]);
+            }
+
+
+            parametersJSON.put("imageData", imageJSON);
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        AndroidNetworking.post("https://www.wisaw.com/api/photos")
+//                .setTag("uploading")
+                .addJSONObjectBody(parametersJSON)
+                .setContentType("application/json")
+                .setPriority(Priority.HIGH)
+                .build()
+                .getAsJSONObject(new JSONObjectRequestListener() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        // do anything with response
+
+                        progressBar.setVisibility(View.INVISIBLE);
+
+
+                        Integer photoId = null;
+                        try {
+                            photoId = response.getInt("id");
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        Log.d("++++++++++++++++++++++", "photo " + photoId + " uploaded");
+
+
+                        File storageDir = getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+                        File finalFile = new File(storageDir.getPath() + "/wisaw-" + photoId + ".png");
+
+                        Log.d("++++++++++++++++++++++", "renaming from: " + currentFile.getPath() + " to: " + finalFile.getPath());
+//                        currentFile.renameTo(finalFile);
+
+                        copyFile(currentFile, finalFile);
+
+                        MediaScannerConnection.scanFile(context,
+                                new String[] { finalFile.getPath() }, null,
+                                new MediaScannerConnection.OnScanCompletedListener() {
+                                    public void onScanCompleted(String path, Uri uri) {
+                                    }
+                                });
+
+                        currentFile.delete();
+                        updateCounter();
+                        loadImages();
+                    }
+                    @Override
+                    public void onError(ANError error) {
+                        progressBar.setVisibility(View.INVISIBLE);
+
+                        // handle error
+                        Log.e("++++++++++++++++++++++ ", "error: " + error.getErrorCode());
+                        if(error.getErrorCode()==401) {
+                            Toast toast = Toast.makeText(getApplicationContext(), "Sorry, looks like you are banned from WiSaw.",
+                                    Toast.LENGTH_SHORT);
+                            toast.setGravity(Gravity.CENTER, 0, 0);
+                            toast.show();
+
+                            File storageDir = getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+                            String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+                            File finalFile = new File(storageDir.getPath() + "/wisaw-" + timeStamp + ".png");
+
+                            Log.d("++++++++++++++++++++++", "renaming from: " + currentFile.getPath() + " to: " + finalFile.getPath());
+//                        currentFile.renameTo(finalFile);
+
+                            copyFile(currentFile, finalFile);
+
+                            MediaScannerConnection.scanFile(context,
+                                    new String[] { finalFile.getPath() }, null,
+                                    new MediaScannerConnection.OnScanCompletedListener() {
+                                        public void onScanCompleted(String path, Uri uri) {
+                                        }
+                                    });
+                            currentFile.delete();
+                            updateCounter();
                             loadImages();
                         }
-                        @Override
-                        public void onError(ANError error) {
-                            progressBar.setVisibility(View.INVISIBLE);
 
-                            // handle error
-                            Log.e("++++++++++++++++++++++ ", "error: " + error.getErrorCode());
-                            if(error.getErrorCode()==401) {
-                                Toast toast = Toast.makeText(getApplicationContext(), "Sorry, looks like you are banned from WiSaw.",
-                                        Toast.LENGTH_SHORT);
-                                toast.setGravity(Gravity.CENTER, 0, 0);
-                                toast.show();
-                            }
+                    }
+                });
+    }
 
-                        }
-                    });
 
+    private static void copyFile(File src, File dst) {
+        try {
+            FileInputStream var2 = new FileInputStream(src);
+            FileOutputStream var3 = new FileOutputStream(dst);
+            byte[] var4 = new byte[1024];
+
+            int var5;
+            while ((var5 = var2.read(var4)) > 0) {
+                var3.write(var4, 0, var5);
+            }
+
+            var2.close();
+            var3.close();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
+    }
+
+
+    private Bitmap imageOrientation(Bitmap originBitmap, String imageFilePath) {
+        try {
+            ExifInterface ei = new ExifInterface(imageFilePath);
+            int orientation = ei.getAttributeInt(ExifInterface.TAG_ORIENTATION,
+                    ExifInterface.ORIENTATION_UNDEFINED);
+
+            Bitmap rotatedBitmap = null;
+            switch (orientation) {
+
+                case ExifInterface.ORIENTATION_ROTATE_90:
+                    rotatedBitmap = rotateImage(originBitmap, 90);
+                    break;
+
+                case ExifInterface.ORIENTATION_ROTATE_180:
+                    rotatedBitmap = rotateImage(originBitmap, 180);
+                    break;
+
+                case ExifInterface.ORIENTATION_ROTATE_270:
+                    rotatedBitmap = rotateImage(originBitmap, 270);
+                    break;
+
+                case ExifInterface.ORIENTATION_NORMAL:
+                default:
+                    rotatedBitmap = originBitmap;
+            }
+
+            return rotatedBitmap;
+
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+        return originBitmap;
+    }
+
+    private static Bitmap rotateImage(Bitmap source, float angle) {
+        Matrix matrix = new Matrix();
+        matrix.postRotate(angle);
+        return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(),
+                matrix, true);
     }
 
 
@@ -487,17 +572,18 @@ public class HomeActivity extends AppCompatActivity {
         // Create an image file name
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
         String imageFileName = "wisaw-new-" + timeStamp;
-        File storageDir = getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
-        File image = File.createTempFile(
+//        File storageDir = getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+        File storageDir = cacheDir;
+        File imageFile = File.createTempFile(
                 imageFileName,  /* prefix */
                 ".png",         /* suffix */
                 storageDir      /* directory */
         );
 
         // Save a file: path for use with ACTION_VIEW intents
-        mCurrentPhotoPath = image.getAbsolutePath();
+        mCurrentPhotoPath = imageFile.getAbsolutePath();
         Log.d("++++++++++++++++++++++", "Path: " + mCurrentPhotoPath);
-        return image;
+        return imageFile;
     }
 
 
@@ -599,6 +685,7 @@ public class HomeActivity extends AppCompatActivity {
                             e.printStackTrace();
                         }
 
+                        uploadImage();
                     }
                     @Override
                     public void onError(ANError error) {
@@ -606,9 +693,41 @@ public class HomeActivity extends AppCompatActivity {
 
                         // handle error
                         Log.e("++++++++++++++++++++++ ", error.getErrorBody());
-
+                        uploadImage();
                     }
                 });
+    }
+
+
+    private void updateCounter() {
+        final int tasksCount = getImagesToUpload().size();
+        Log.d("!!!!!!!!!!!!!!!!!!!!!!!", "tasksCount - " + tasksCount);
+        // Update the UI to indicate the work has been completed
+        this.runOnUiThread(new Runnable() {
+            public void run() {
+                if (tasksCount == 0) {
+//                    uploadCounterButton.setVisibility(View.INVISIBLE);
+                    uploadCounterButton.setText(String.valueOf(""));
+                } else {
+//                    uploadCounterButton.setVisibility(View.VISIBLE);
+                    uploadCounterButton.setText(String.valueOf(tasksCount));
+                }
+            }
+        });
+    }
+
+
+    private  List<File> getImagesToUpload() {
+//        File directory = getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+        File directory = cacheDir;
+        File[] files = directory.listFiles();
+        List<File> resultList = new ArrayList<File>();
+        for (File inFile : files) {
+            if(inFile.getName().contains("wisaw-new-")) {
+                resultList.add(inFile);
+            }
+        }
+        return resultList;
     }
 
 
