@@ -50,7 +50,6 @@ import org.json.JSONObject;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -161,21 +160,9 @@ public class HomeActivity extends AppCompatActivity {
 
 
         context = this;
-
         cacheDir = context.getFilesDir();
 
-        String[] children = cacheDir.list();
-        Date today = new Date();
-
-        for (int i = 0; i < children.length; i++)
-        {
-            File cachedImage = new File(cacheDir, children[i]);
-
-            int diffInDays = (int)( (today.getTime() - cachedImage.lastModified()) /(1000 * 60 * 60 * 24) );
-            if(diffInDays>=1) {
-                    cachedImage.delete();
-            }
-        }
+        cleanup();
 
 
 //        StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder(); StrictMode.setVmPolicy(builder.build());
@@ -359,6 +346,21 @@ public class HomeActivity extends AppCompatActivity {
         uploadCounterButton.startAnimation(animation);
     }
 
+
+    private void cleanup() {
+        String[] children = cacheDir.list();
+        Date today = new Date();
+
+        for (int i = 0; i < children.length; i++)
+        {
+            File cachedImage = new File(cacheDir, children[i]);
+
+            int diffInDays = (int)( (today.getTime() - cachedImage.lastModified()) /(1000 * 60 * 60 * 24) );
+            if(diffInDays>=1) {
+                    cachedImage.delete();
+            }
+        }
+    }
 
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
