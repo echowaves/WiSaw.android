@@ -3,6 +3,7 @@ package com.echowaves.wisaw;
 import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
@@ -14,8 +15,8 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.androidnetworking.AndroidNetworking;
-import com.androidnetworking.common.Priority;
 import com.androidnetworking.error.ANError;
+import com.androidnetworking.interfaces.BitmapRequestListener;
 import com.androidnetworking.interfaces.JSONObjectRequestListener;
 import com.androidnetworking.widget.ANImageView;
 import com.eqot.fontawesome.FontAwesome;
@@ -39,7 +40,7 @@ public class DetailedViewFragment extends Fragment {
     TextView reportAbuseButton;
     TextView deleteButton;
     TextView shareButton;
-    ANImageView imageView;
+    TouchImageView imageView;
 
     Context context;
 
@@ -63,7 +64,8 @@ public class DetailedViewFragment extends Fragment {
         imageView = view.findViewById(R.id.imageView);
 
         progressBar = view.findViewById(R.id.progressBar_cyclic);
-//        progressBar.bringToFront();
+        progressBar.bringToFront();
+        progressBar.setVisibility(View.VISIBLE);
 
 
         try {
@@ -74,12 +76,67 @@ public class DetailedViewFragment extends Fragment {
             photoId = photoJSON.getInt("id");
             uuid = photoJSON.getString("uuid");
 
+//            final String thumbUrl = photosJSON.getJSONObject(index).getString("getThumbUrl");
+//            final String imgUrl = photosJSON.getJSONObject(index).getString("getImgUrl");
+//
+////            imageView.setDefaultImageResId(R.drawable.default);
+////            imageView.setErrorImageResId(R.drawable.error);
+//
+//
+//            AndroidNetworking.get(thumbUrl)
+//                    .build()
+//                    .getAsBitmap(new BitmapRequestListener() {
+//                        @Override
+//                        public void onResponse(Bitmap thumbUrlbitmap) {
+//                            // do anything with bitmap
+//                            imageView.setImageBitmap(thumbUrlbitmap);
+//
+//                            AndroidNetworking.get(imgUrl)
+//                                    .build()
+//                                    .getAsBitmap(new BitmapRequestListener() {
+//                                        @Override
+//                                        public void onResponse(Bitmap imgUrlbitmap) {
+//                                            // do anything with bitmap
+//                                            imageView.setImageBitmap(imgUrlbitmap);
+//                                            progressBar.setVisibility(View.INVISIBLE);
+//                                        }
+//                                        @Override
+//                                        public void onError(ANError error) {
+//                                            // handle error
+//                                            System.out.println("Download image error: " + imgUrl + error);
+//                                            progressBar.setVisibility(View.INVISIBLE);
+//                                        }
+//                                    });
+//
+//                        }
+//                        @Override
+//                        public void onError(ANError error) {
+//                            // handle error
+//                            System.out.println("Download image error: " + thumbUrl + error);
+//
+//
+//                            AndroidNetworking.get(imgUrl)
+//                                    .build()
+//                                    .getAsBitmap(new BitmapRequestListener() {
+//                                        @Override
+//                                        public void onResponse(Bitmap imgUrlbitmap) {
+//                                            // do anything with bitmap
+//                                            imageView.setImageBitmap(imgUrlbitmap);
+//                                            progressBar.setVisibility(View.INVISIBLE);
+//                                        }
+//                                        @Override
+//                                        public void onError(ANError error) {
+//                                            // handle error
+//                                            System.out.println("Download image error: " + imgUrl + error);
+//                                            progressBar.setVisibility(View.INVISIBLE);
+//                                        }
+//                                    });
+//
+//
+//                        }
+//                    });
 
-            String imgUrl = photosJSON.getJSONObject(index).getString("getImgUrl");
 
-//            imageView.setDefaultImageResId(R.drawable.default);
-//            imageView.setErrorImageResId(R.drawable.error);
-            imageView.setImageUrl(imgUrl);
 
         } catch (JSONException e) {
             e.printStackTrace();
@@ -296,26 +353,89 @@ public class DetailedViewFragment extends Fragment {
         super.onResume();
         progressBar.setVisibility(View.INVISIBLE);
 //
-//        if (!getUserVisibleHint()) {
-////            progressBar.setVisibility(View.INVISIBLE);
-//            return;
-//        }
-//
-        String thumbUrl = null;
-        String imgUrl = null;
+        if (!getUserVisibleHint()) {
+//            progressBar.setVisibility(View.INVISIBLE);
+            return;
+        }
 
         try {
-            thumbUrl = photoJSON.getString("getThumbUrl");
-            imgUrl  = photoJSON.getString("getImgUrl");
+
+            final String thumbUrl = photosJSON.getJSONObject(index).getString("getThumbUrl");
+            final String imgUrl = photosJSON.getJSONObject(index).getString("getImgUrl");
+
+//            imageView.setDefaultImageResId(R.drawable.default);
+//            imageView.setErrorImageResId(R.drawable.error);
+
+            if(imageView.isInitialized()) {
+                return;
+            }
+
+            progressBar.setVisibility(View.VISIBLE);
+
+//            System.out.println("Downloadubg thumb: " + thumbUrl);
+            AndroidNetworking.get(thumbUrl)
+                    .build()
+                    .getAsBitmap(new BitmapRequestListener() {
+                        @Override
+                        public void onResponse(Bitmap thumbUrlbitmap) {
+                            // do anything with bitmap
+                            imageView.setImageBitmap(thumbUrlbitmap);
+                            imageView.setZoom(0.9f);
+
+//                            System.out.println("Downloadubg img: " + imgUrl);
+                            AndroidNetworking.get(imgUrl)
+                                    .build()
+                                    .getAsBitmap(new BitmapRequestListener() {
+                                        @Override
+                                        public void onResponse(Bitmap imgUrlbitmap) {
+                                            // do anything with bitmap
+                                            progressBar.setVisibility(View.INVISIBLE);
+                                            imageView.setImageBitmap(imgUrlbitmap);
+                                            imageView.setZoom(1f);
+                                        }
+                                        @Override
+                                        public void onError(ANError error) {
+                                            // handle error
+                                            System.out.println("Download image error: " + imgUrl + error);
+                                            progressBar.setVisibility(View.INVISIBLE);
+                                        }
+                                    });
+
+                        }
+                        @Override
+                        public void onError(ANError error) {
+                            // handle error
+                            System.out.println("Download image error: " + thumbUrl + error);
+
+
+                            AndroidNetworking.get(imgUrl)
+                                    .build()
+                                    .getAsBitmap(new BitmapRequestListener() {
+                                        @Override
+                                        public void onResponse(Bitmap imgUrlbitmap) {
+                                            // do anything with bitmap
+                                            imageView.setImageBitmap(imgUrlbitmap);
+                                            progressBar.setVisibility(View.INVISIBLE);
+                                        }
+                                        @Override
+                                        public void onError(ANError error) {
+                                            // handle error
+                                            System.out.println("Download image error: " + imgUrl + error);
+                                            progressBar.setVisibility(View.INVISIBLE);
+                                        }
+                                    });
+
+
+                        }
+                    });
+
+
+
 
         } catch (JSONException e) {
             e.printStackTrace();
         }
 
-//            imageView.setDefaultImageResId(R.drawable.default);
-//            imageView.setErrorImageResId(R.drawable.error);
-        imageView.setImageUrl(thumbUrl);
-        imageView.setImageUrl(imgUrl);
 
     }
 

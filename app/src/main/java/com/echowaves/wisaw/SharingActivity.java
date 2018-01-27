@@ -1,18 +1,12 @@
 package com.echowaves.wisaw;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
+import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -23,22 +17,8 @@ import com.androidnetworking.interfaces.JSONObjectRequestListener;
 import com.androidnetworking.widget.ANImageView;
 import com.eqot.fontawesome.FontAwesome;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.concurrent.Executors;
-
-import io.branch.indexing.BranchUniversalObject;
-import io.branch.referral.Branch;
-import io.branch.referral.BranchError;
-import io.branch.referral.SharingHelper;
-import io.branch.referral.util.LinkProperties;
-import io.branch.referral.util.ShareSheetStyle;
 
 public class SharingActivity extends AppCompatActivity {
 
@@ -69,7 +49,7 @@ public class SharingActivity extends AppCompatActivity {
 
         progressBar = findViewById(R.id.progressBar_cyclic);
         progressBar.bringToFront();
-
+        progressBar.setVisibility(View.INVISIBLE);
 
         photoId = new Integer(getIntent().getStringExtra("photoId"));
 

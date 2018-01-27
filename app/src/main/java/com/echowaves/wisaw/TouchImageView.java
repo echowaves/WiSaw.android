@@ -31,7 +31,7 @@ import android.widget.OverScroller;
 import android.widget.Scroller;
 
 public class TouchImageView extends AppCompatImageView {
-
+    private boolean initialized = false; // customization
     private static final String DEBUG = "DEBUG";
 
     //
@@ -153,6 +153,12 @@ public class TouchImageView extends AppCompatImageView {
         super.setImageBitmap(bm);
         savePreviousImageValues();
         fitImageToView();
+        initialized = true;
+    }
+
+    // customization
+    public boolean isInitialized() {
+        return initialized;
     }
 
     @Override
