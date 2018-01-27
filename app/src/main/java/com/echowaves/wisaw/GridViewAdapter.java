@@ -7,7 +7,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
-import android.widget.TextView;
+
+import com.androidnetworking.widget.ANImageView;
 
 import java.util.ArrayList;
 
@@ -18,37 +19,40 @@ import java.util.ArrayList;
 public class GridViewAdapter extends ArrayAdapter {
     private Context context;
     private int layoutResourceId;
-    private ArrayList<ImageItem> data = new ArrayList<ImageItem>();
+    private ArrayList<ImageItem> imageItems = new ArrayList<>();
 
-    public GridViewAdapter(Context context, int layoutResourceId, ArrayList data) {
-        super(context, layoutResourceId, data);
+    public GridViewAdapter(Context context, int layoutResourceId, ArrayList imageItems) {
+        super(context, layoutResourceId, imageItems);
         this.layoutResourceId = layoutResourceId;
         this.context = context;
-        this.data = data;
+        this.imageItems = imageItems;
     }
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         View row = convertView;
-        ViewHolder holder = null;
+//        ViewHolder holder = null;
 
-        if (row == null) {
+//        if (row == null) {
             LayoutInflater inflater = ((Activity) context).getLayoutInflater();
             row = inflater.inflate(layoutResourceId, parent, false);
-            holder = new ViewHolder();
-            holder.image = (ImageView) row.findViewById(R.id.image);
-            row.setTag(holder);
-        } else {
-            holder = (ViewHolder) row.getTag();
-        }
+//            holder = new ViewHolder();
+        ANImageView imageView = (ANImageView) row.findViewById(R.id.image);
 
-        ImageItem item = data.get(position);
+//            row.setTag(holder);
+//        } else {
+//            holder = (ViewHolder) row.getTag();
+//        }
 
-        holder.image.setImageBitmap(item.getImage());
+        ImageItem item = imageItems.get(position);
+
+        imageView.setImageUrl(item.getImageUrl());
+
+//        holder.image.setImageBitmap(item.getImage());
         return row;
     }
 
-    static class ViewHolder {
-        ImageView image;
-    }
+//    static class ViewHolder {
+//        com.androidnetworking.widget.ANImageView image;
+//    }
 }

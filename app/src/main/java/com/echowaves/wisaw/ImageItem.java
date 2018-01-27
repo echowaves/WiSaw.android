@@ -1,28 +1,21 @@
 package com.echowaves.wisaw;
 
-import android.graphics.Bitmap;
+import com.androidnetworking.widget.ANImageView;
 
 /**
  * Created by dmitry on 10/27/17.
  */
 
 public class ImageItem {
-    private Bitmap image;
+    private String imageUrl;
 
+    public String getImageUrl() {
+        return imageUrl;
+    }
 
-    public ImageItem(Bitmap image) {
+    public ImageItem(String thumbUrl) {
         super();
-        this.image = image;
-
+        this.imageUrl = thumbUrl;
     }
-
-    public Bitmap getImage() {
-        return image;
-    }
-
-    public void setImage(Bitmap image) {
-        this.image = image;
-    }
-
 
 }

@@ -614,20 +614,20 @@ public class HomeActivity extends AppCompatActivity {
     }
 
 
-    public static Bitmap fromJsonArray(JSONArray array) {
-        Bitmap bitmap=null;
-        try {
-            byte[] tmp = new byte[array.length()];
-
-            for (int i = 0; i < array.length(); i++) {
-                tmp[i] = (byte) (((int) array.get(i)) & 0xFF);
-            }
-            bitmap = BitmapFactory.decodeByteArray(tmp, 0, tmp.length);
-        } catch (JSONException e) {
-//                e.printStackTrace();
-            }
-        return bitmap;
-    }
+//    public static Bitmap fromJsonArray(JSONArray array) {
+//        Bitmap bitmap=null;
+//        try {
+//            byte[] tmp = new byte[array.length()];
+//
+//            for (int i = 0; i < array.length(); i++) {
+//                tmp[i] = (byte) (((int) array.get(i)) & 0xFF);
+//            }
+//            bitmap = BitmapFactory.decodeByteArray(tmp, 0, tmp.length);
+//        } catch (JSONException e) {
+////                e.printStackTrace();
+//            }
+//        return bitmap;
+//    }
 
     // Prepare some data for gridview
     private ArrayList<ImageItem> getData() {
@@ -640,12 +640,14 @@ public class HomeActivity extends AppCompatActivity {
         for (int i = 0; i < photosJSON.length(); i++) {
 
             try {
-                JSONObject thumbJSON = photosJSON.getJSONObject(i).getJSONObject("thumbNail");
-                JSONArray dataJSON = thumbJSON.getJSONArray("data");
+//                JSONObject thumbJSON = photosJSON.getJSONObject(i).getJSONObject("thumbNail");
+                String thumbUrl = photosJSON.getJSONObject(i).getString("getThumbUrl");
 
-                Bitmap bitmap = fromJsonArray(dataJSON);
+//                JSONArray dataJSON = thumbJSON.getJSONArray("data");
 
-                imageItems.add(new ImageItem(bitmap));
+//                Bitmap bitmap = fromJsonArray(dataJSON);
+
+                imageItems.add(new ImageItem(thumbUrl));
 
             } catch (JSONException e) {
                 e.printStackTrace();
