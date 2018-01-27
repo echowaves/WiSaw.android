@@ -3,8 +3,6 @@ package com.echowaves.wisaw;
 import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
@@ -19,17 +17,12 @@ import com.androidnetworking.AndroidNetworking;
 import com.androidnetworking.common.Priority;
 import com.androidnetworking.error.ANError;
 import com.androidnetworking.interfaces.JSONObjectRequestListener;
+import com.androidnetworking.widget.ANImageView;
 import com.eqot.fontawesome.FontAwesome;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.Calendar;
 
 import io.branch.indexing.BranchUniversalObject;
 import io.branch.referral.Branch;
@@ -46,25 +39,21 @@ public class DetailedViewFragment extends Fragment {
     TextView reportAbuseButton;
     TextView deleteButton;
     TextView shareButton;
-    TouchImageView imageView;
+    ANImageView imageView;
 
     Context context;
 
     public int index = 0;
 
     private JSONArray photosJSON = null;
-
+    private JSONObject photoJSON = null;
     private String uuid;
     private Integer photoId;
 
 
-    private ApplicationClass.FileCache imagesCache;
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-
-        imagesCache = new ApplicationClass.FileCache(this.getContext());
 
 
         ViewGroup view = (ViewGroup) inflater.inflate(
@@ -77,32 +66,20 @@ public class DetailedViewFragment extends Fragment {
         progressBar.bringToFront();
 
 
-//        Intent myIntent = getIntent(); // gets the previously created intent
-//        index = Integer.valueOf(myIntent.getStringExtra("position")).intValue(); // will return "SecondKeyValue"
-
         try {
 
             photosJSON = HomeActivity.photosJSON;
 
-
-            JSONObject photoJSON = null;
             photoJSON = photosJSON.getJSONObject(index);
             photoId = photoJSON.getInt("id");
             uuid = photoJSON.getString("uuid");
 
 
-            JSONObject thumbJSON = photosJSON.getJSONObject(index).getJSONObject("thumbNail");
-            JSONArray dataJSON = thumbJSON.getJSONArray("data");
+            String thumbUrl = photosJSON.getJSONObject(index).getString("getThumbUrl");
 
-            Bitmap bitmap = imagesCache.get(photoId);
-
-
-            if (bitmap == null) {
-                bitmap = HomeActivity.fromJsonArray(dataJSON);
-//                progressBar.setVisibility(View.INVISIBLE);
-            }
-
-            imageView.setImageBitmap(bitmap);
+//            imageView.setDefaultImageResId(R.drawable.default);
+//            imageView.setErrorImageResId(R.drawable.error);
+            imageView.setImageUrl(thumbUrl);
 
         } catch (JSONException e) {
             e.printStackTrace();
@@ -137,7 +114,7 @@ public class DetailedViewFragment extends Fragment {
                                 }
                                 ;
                                 progressBar.setVisibility(View.VISIBLE);
-                                AndroidNetworking.post("https://www.wisaw.com/api/abusereport")
+                                AndroidNetworking.post(ApplicationClass.HOST + "/abusereport")
                                         .addJSONObjectBody(parametersJSON)
                                         .setContentType("application/json")
                                         .setPriority(Priority.HIGH)
@@ -151,7 +128,7 @@ public class DetailedViewFragment extends Fragment {
 
 
                                                 progressBar.setVisibility(View.VISIBLE);
-                                                AndroidNetworking.delete("https://www.wisaw.com/api/photos/" + photoId)
+                                                AndroidNetworking.delete(ApplicationClass.HOST + "/photos/" + photoId)
                                                         .setContentType("application/json")
                                                         .setPriority(Priority.HIGH)
                                                         .build()
@@ -212,9 +189,8 @@ public class DetailedViewFragment extends Fragment {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 progressBar.setVisibility(View.VISIBLE);
-                                AndroidNetworking.delete("https://www.wisaw.com/api/photos/" + photoId)
+                                AndroidNetworking.delete(ApplicationClass.HOST + "/photos/" + photoId)
                                         .setContentType("application/json")
-                                        .setPriority(Priority.HIGH)
                                         .build()
                                         .getAsJSONObject(new JSONObjectRequestListener() {
                                             @Override
@@ -251,7 +227,11 @@ public class DetailedViewFragment extends Fragment {
         shareButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                share(photoId, getActivity());
+                try {
+                    share(photoJSON, getActivity());
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
             }
         });
 
@@ -260,12 +240,12 @@ public class DetailedViewFragment extends Fragment {
         return view;
     }
 
-    public static void share(Integer photoId, Activity activity) {
+    public static void share(JSONObject photoJSON, Activity activity) throws JSONException {
         BranchUniversalObject buo = new BranchUniversalObject()
-                .setCanonicalIdentifier("photo/" + photoId)
+                .setCanonicalIdentifier("photo/" + photoJSON.getInt("id"))
                 .setTitle("What I saw today:")
-                .setContentDescription("Photo " + photoId + " shared")
-                .setContentImageUrl("https://www.wisaw.com/api/photos/" + photoId + "/thumb")
+                .setContentDescription("Photo " + photoJSON.getInt("id") + " shared")
+                .setContentImageUrl(photoJSON.getString("getThumbUrl"))
                 .setContentIndexingMode(BranchUniversalObject.CONTENT_INDEX_MODE.PUBLIC)
                 .setLocalIndexMode(BranchUniversalObject.CONTENT_INDEX_MODE.PUBLIC)
 //                        .setContentMetadata(new ContentMetadata().addCustomMetadata("key1", "value1"));
@@ -281,7 +261,7 @@ public class DetailedViewFragment extends Fragment {
 //                        .addControlParameter("$desktop_url", "http://example.com/home")
 //                        .addControlParameter("custom", "data")
 //                        .addControlParameter("custom_random", Long.toString(Calendar.getInstance().getTimeInMillis()));
-                .addControlParameter("$photo_id", photoId.toString())
+                .addControlParameter("$photo_id", String.valueOf(photoJSON.getInt("id")))
 
                 ;
 
@@ -316,61 +296,30 @@ public class DetailedViewFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        progressBar.setVisibility(View.INVISIBLE);
+//        progressBar.setVisibility(View.INVISIBLE);
+//
+//        if (!getUserVisibleHint()) {
+////            progressBar.setVisibility(View.INVISIBLE);
+//            return;
+//        }
+//
+        String thumbUrl = null;
+        String imgUrl = null;
 
-        if (!getUserVisibleHint()) {
-//            progressBar.setVisibility(View.INVISIBLE);
-            return;
+        try {
+            thumbUrl = photoJSON.getString("getThumbUrl");
+            imgUrl  = photoJSON.getString("getImgUrl");
+
+        } catch (JSONException e) {
+            e.printStackTrace();
         }
 
-
-        Bitmap bitmap = imagesCache.get(photoId);
-
-
-        if (bitmap == null) {
-            progressBar.setVisibility(View.VISIBLE);
-            AndroidNetworking.cancel("download");
-            AndroidNetworking.get("https://www.wisaw.com/api/photos/" + photoId)
-                    .setPriority(Priority.HIGH)
-                    .setTag("download")
-//                    .setExecutor(Executors.newSingleThreadExecutor())
-                    .build()
-                    .getAsJSONObject(new JSONObjectRequestListener() {
-                        @Override
-                        public void onResponse(JSONObject response) {
-                            progressBar.setVisibility(View.INVISIBLE);
-
-                            // do anything with response
+//            imageView.setDefaultImageResId(R.drawable.default);
+//            imageView.setErrorImageResId(R.drawable.error);
+        imageView.setImageUrl(thumbUrl);
+        imageView.setImageUrl(imgUrl);
 
 
-                            JSONArray imageDataArray = null;
-                            try {
-                                JSONObject photoJson = response.getJSONObject("photo");
-                                JSONObject imageDataJson = photoJson.getJSONObject("imageData");
-                                imageDataArray = imageDataJson.getJSONArray("data");
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
-
-                            Bitmap imageData = HomeActivity.fromJsonArray(imageDataArray);
-
-
-                            imagesCache.put(photoId, imageData);
-
-                            imageView.setImageBitmap(imageData);
-
-                        }
-
-                        @Override
-                        public void onError(ANError error) {
-                            progressBar.setVisibility(View.INVISIBLE);
-
-                            // handle error
-                            Log.e("++++++++++++++++++++++ ", error.getErrorBody());
-
-                        }
-                    });
-        }
     }
 
 

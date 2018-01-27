@@ -20,6 +20,7 @@ import com.androidnetworking.AndroidNetworking;
 import com.androidnetworking.common.Priority;
 import com.androidnetworking.error.ANError;
 import com.androidnetworking.interfaces.JSONObjectRequestListener;
+import com.androidnetworking.widget.ANImageView;
 import com.eqot.fontawesome.FontAwesome;
 
 import org.json.JSONArray;
@@ -48,25 +49,20 @@ public class SharingActivity extends AppCompatActivity {
     TextView reportAbuseButton;
     TextView deleteButton;
     TextView shareButton;
-    TouchImageView imageView;
+    ANImageView imageView;
 
     Activity context;
 
 
-//    private JSONArray photosJSON = null;
-
+    private JSONObject photoJson;
     private String uuid;
     private Integer photoId;
 
-
-    private ApplicationClass.FileCache imagesCache;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sharing);
-
-        imagesCache = new ApplicationClass.FileCache(this);
 
 
         imageView = findViewById(R.id.imageView);
@@ -107,7 +103,7 @@ public class SharingActivity extends AppCompatActivity {
                                 }
                                 ;
                                 progressBar.setVisibility(View.VISIBLE);
-                                AndroidNetworking.post("https://www.wisaw.com/api/abusereport")
+                                AndroidNetworking.post(ApplicationClass.HOST + "/abusereport")
                                         .addJSONObjectBody(parametersJSON)
                                         .setContentType("application/json")
                                         .setPriority(Priority.HIGH)
@@ -121,7 +117,7 @@ public class SharingActivity extends AppCompatActivity {
 
 
                                                 progressBar.setVisibility(View.VISIBLE);
-                                                AndroidNetworking.delete("https://www.wisaw.com/api/photos/" + photoId)
+                                                AndroidNetworking.delete(ApplicationClass.HOST + "/photos/" + photoId)
                                                         .setContentType("application/json")
                                                         .setPriority(Priority.HIGH)
                                                         .build()
@@ -182,9 +178,8 @@ public class SharingActivity extends AppCompatActivity {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 progressBar.setVisibility(View.VISIBLE);
-                                AndroidNetworking.delete("https://www.wisaw.com/api/photos/" + photoId)
+                                AndroidNetworking.delete(ApplicationClass.HOST + "/photos/" + photoId)
                                         .setContentType("application/json")
-                                        .setPriority(Priority.HIGH)
                                         .build()
                                         .getAsJSONObject(new JSONObjectRequestListener() {
                                             @Override
@@ -217,11 +212,76 @@ public class SharingActivity extends AppCompatActivity {
         });
 
 
+        progressBar.setVisibility(View.VISIBLE);
+        AndroidNetworking.cancel("download");
+        AndroidNetworking.get(ApplicationClass.HOST + "/photos/" + photoId)
+                .setTag("download")
+//                    .setExecutor(Executors.newSingleThreadExecutor())
+                .build()
+                .getAsJSONObject(new JSONObjectRequestListener() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        progressBar.setVisibility(View.INVISIBLE);
+
+                        // do anything with response
+
+                        try {
+                            photoJson = response.getJSONObject("photo");
+                            uuid = photoJson.getString("uuid");
+
+
+                            String thumbUrl = photoJson.getString("getThumbUrl");
+                            String imgUrl = photoJson.getString("getImgUrl");
+
+
+//            imageView.setDefaultImageResId(R.drawable.default);
+//            imageView.setErrorImageResId(R.drawable.error);
+                            imageView.setImageUrl(thumbUrl);
+                            imageView.setImageUrl(imgUrl);
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+
+
+                        reportAbuseButton.setEnabled(true);
+                        deleteButton.setEnabled(true);
+                        shareButton.setEnabled(true);
+
+
+                    }
+
+                    @Override
+                    public void onError(ANError error) {
+                        progressBar.setVisibility(View.INVISIBLE);
+
+
+                        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                        builder.setMessage("Looks like this short lived photo has expired.")
+                                .setNegativeButton("OK", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        finish();
+                                    }
+                                }).show();
+
+                        // handle error
+                        Log.e("++++++++++++++++++++++ ", error.getErrorBody());
+
+                    }
+                });
+//        }
+
+
         shareButton = findViewById(R.id.btnShare);
         shareButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                DetailedViewFragment.share(photoId, context);
+                try {
+                    DetailedViewFragment.share(photoJson, context);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
             }
         });
 
@@ -230,81 +290,11 @@ public class SharingActivity extends AppCompatActivity {
         progressBar.setVisibility(View.INVISIBLE);
 
 
-
-//        Bitmap bitmap = imagesCache.get(photoId);
-
-
-//        if (bitmap == null) {
-            progressBar.setVisibility(View.VISIBLE);
-            AndroidNetworking.cancel("download");
-            AndroidNetworking.get("https://www.wisaw.com/api/photos/" + photoId)
-                    .setPriority(Priority.HIGH)
-                    .setTag("download")
-//                    .setExecutor(Executors.newSingleThreadExecutor())
-                    .build()
-                    .getAsJSONObject(new JSONObjectRequestListener() {
-                        @Override
-                        public void onResponse(JSONObject response) {
-                            progressBar.setVisibility(View.INVISIBLE);
-
-                            // do anything with response
-
-
-                            JSONArray imageDataArray = null;
-                            try {
-                                JSONObject photoJson = response.getJSONObject("photo");
-                                JSONObject imageDataJson = photoJson.getJSONObject("imageData");
-                                imageDataArray = imageDataJson.getJSONArray("data");
-                                uuid = photoJson.getString("uuid");
-
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
-
-                            Bitmap imageData = HomeActivity.fromJsonArray(imageDataArray);
-
-
-                            imagesCache.put(photoId, imageData);
-
-
-                            imageView.setImageBitmap(imageData);
-                            imageView.setZoom(1);
-
-                            reportAbuseButton.setEnabled(true);
-                            deleteButton.setEnabled(true);
-                            shareButton.setEnabled(true);
-
-
-                        }
-
-                        @Override
-                        public void onError(ANError error) {
-                            progressBar.setVisibility(View.INVISIBLE);
-
-
-                            AlertDialog.Builder builder = new AlertDialog.Builder(context);
-                            builder.setMessage("Looks like this short lived photo has expired.")
-                                    .setNegativeButton("OK", new DialogInterface.OnClickListener() {
-                                                @Override
-                                                public void onClick(DialogInterface dialog, int which) {
-                                                    finish();
-                                                }
-                                            }).show();
-
-                                            // handle error
-                            Log.e("++++++++++++++++++++++ ", error.getErrorBody());
-
-                        }
-                    });
-//        }
-
-
         reportAbuseButton.setEnabled(false);
         deleteButton.setEnabled(false);
         shareButton.setEnabled(false);
 
     }
-
 
 
 }

@@ -397,7 +397,7 @@ public class HomeActivity extends AppCompatActivity {
         final File currentFile = imageFiles.get(0);
         String imageFilePath =  currentFile.getPath();
 
-        JSONArray imageJSON = new JSONArray();
+//        JSONArray imageJSON = new JSONArray();
         JSONArray coordinatesJSON = new JSONArray();
         JSONObject locationJSON = new JSONObject();
         JSONObject parametersJSON = new JSONObject();
@@ -409,32 +409,30 @@ public class HomeActivity extends AppCompatActivity {
             locationJSON.put("coordinates", coordinatesJSON);
             parametersJSON.put("location", locationJSON);
 
-            Bitmap bmp = BitmapFactory.decodeFile(imageFilePath);
+//            Bitmap bmp = BitmapFactory.decodeFile(imageFilePath);
 
-            Bitmap rotatedBitmap = imageOrientation(bmp, imageFilePath);
+//            Bitmap rotatedBitmap = imageOrientation(bmp, imageFilePath);
 
-            ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            rotatedBitmap.compress(Bitmap.CompressFormat.PNG, 70, bos);
+//            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+//            rotatedBitmap.compress(Bitmap.CompressFormat.JPEG, 70, bos);
 
-            byte[] bytes = bos.toByteArray();
+//            byte[] bytes = bos.toByteArray();
 
-
-            for(int ii=0; ii< bytes.length; ii++) {
-                imageJSON.put(ii, bytes[ii]);
-            }
-
-
-            parametersJSON.put("imageData", imageJSON);
+//            for(int ii=0; ii< bytes.length; ii++) {
+//                imageJSON.put(ii, bytes[ii]);
+//            }
+//
+//
+//            parametersJSON.put("imageData", imageJSON);
 
         } catch (JSONException e) {
             e.printStackTrace();
         }
 
-        AndroidNetworking.post("https://www.wisaw.com/api/photos")
+        AndroidNetworking.post(ApplicationClass.HOST + "/photos")
 //                .setTag("uploading")
                 .addJSONObjectBody(parametersJSON)
                 .setContentType("application/json")
-                .setPriority(Priority.HIGH)
                 .build()
                 .getAsJSONObject(new JSONObjectRequestListener() {
                     @Override
@@ -444,17 +442,20 @@ public class HomeActivity extends AppCompatActivity {
                         progressBar.setVisibility(View.INVISIBLE);
 
 
+
                         Integer photoId = null;
+                        String uploadUrl = null;
                         try {
                             photoId = response.getInt("id");
+                            uploadUrl = response.getString("uploadURL");
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
                         Log.d("++++++++++++++++++++++", "photo " + photoId + " uploaded");
 
-
                         File storageDir = getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
-                        File finalFile = new File(storageDir.getPath() + "/wisaw-" + photoId + ".png");
+                        File finalFile = new File(storageDir.getPath() + "/wisaw-" + photoId + ".jpg");
+
 
                         Log.d("++++++++++++++++++++++", "renaming from: " + currentFile.getPath() + " to: " + finalFile.getPath());
 //                        currentFile.renameTo(finalFile);
@@ -468,9 +469,33 @@ public class HomeActivity extends AppCompatActivity {
                                     }
                                 });
 
-                        currentFile.delete();
-                        updateCounter();
-                        loadImages();
+
+                        AndroidNetworking
+                                .put(uploadUrl)
+                                .addFileBody(currentFile)
+                                .build()
+                                .getAsJSONObject(new JSONObjectRequestListener() {
+                                    @Override
+                                    public void onResponse(JSONObject response) {
+                                        // do anything with response
+                                        currentFile.delete();
+                                        updateCounter();
+                                        loadImages();
+
+                                    }
+                                    @Override
+                                    public void onError(ANError error) {
+                                        // handle error
+                                        currentFile.delete();
+                                        updateCounter();
+                                        loadImages();
+
+                                    }
+                                });
+
+
+
+
                     }
                     @Override
                     public void onError(ANError error) {
@@ -486,7 +511,7 @@ public class HomeActivity extends AppCompatActivity {
 
                             File storageDir = getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
                             String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-                            File finalFile = new File(storageDir.getPath() + "/wisaw-" + timeStamp + ".png");
+                            File finalFile = new File(storageDir.getPath() + "/wisaw-" + timeStamp + ".jpg");
 
                             Log.d("++++++++++++++++++++++", "renaming from: " + currentFile.getPath() + " to: " + finalFile.getPath());
 //                        currentFile.renameTo(finalFile);
@@ -578,7 +603,7 @@ public class HomeActivity extends AppCompatActivity {
         File storageDir = cacheDir;
         File imageFile = File.createTempFile(
                 imageFileName,  /* prefix */
-                ".png",         /* suffix */
+                ".jpg",         /* suffix */
                 storageDir      /* directory */
         );
 
@@ -659,7 +684,7 @@ public class HomeActivity extends AppCompatActivity {
 
         Log.d("++++++++++++++++++++++", "loading images via API");
         progressBar.setVisibility(View.VISIBLE);
-        AndroidNetworking.post("https://www.wisaw.com/api/photos/feed")
+        AndroidNetworking.post(ApplicationClass.HOST + "/photos/feed")
                 .addJSONObjectBody(parametersJSON)
                 .setContentType("application/json")
                 .setPriority(Priority.IMMEDIATE)

@@ -18,6 +18,10 @@ import java.io.IOException;
 import io.branch.referral.Branch;
 
 public class ApplicationClass  extends Application  {
+
+    public static String HOST = "https://testapi.wisaw.com";
+
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -29,38 +33,38 @@ public class ApplicationClass  extends Application  {
         Branch.getAutoInstance(this);
     }
 
-    public static class FileCache {
-        Context mContext;
-        File storageDir;
-
-        FileCache(Context context) {
-            mContext = context;
-            storageDir = mContext.getFilesDir();
-        }
-
-        public void put(Integer id, Bitmap bitmap) {
-            try {
-                File pictureFile = new File(storageDir, id.toString());
-                FileOutputStream fos = new FileOutputStream(pictureFile);
-                bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
-//                fos.write(bitmap.getRowBytes());
-                fos.flush();
-                fos.close();
-            } catch (FileNotFoundException e) {
-                Log.d("++++++++++++++", "File not found: " + e.getMessage());
-            } catch (IOException e) {
-                Log.d("++++++++++++++", "Error accessing file: " + e.getMessage());
-            }
-        }
-
-
-        public Bitmap get(Integer id) {
-            File pictureFile = new File(storageDir, id.toString());
-            if (pictureFile.exists()) {
-                return BitmapFactory.decodeFile(pictureFile.getAbsolutePath());
-            }
-            return null;
-        }
-    }
+//    public static class FileCache {
+//        Context mContext;
+//        File storageDir;
+//
+//        FileCache(Context context) {
+//            mContext = context;
+//            storageDir = mContext.getFilesDir();
+//        }
+//
+//        public void put(Integer id, Bitmap bitmap) {
+//            try {
+//                File pictureFile = new File(storageDir, id.toString());
+//                FileOutputStream fos = new FileOutputStream(pictureFile);
+//                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
+////                fos.write(bitmap.getRowBytes());
+//                fos.flush();
+//                fos.close();
+//            } catch (FileNotFoundException e) {
+//                Log.d("++++++++++++++", "File not found: " + e.getMessage());
+//            } catch (IOException e) {
+//                Log.d("++++++++++++++", "Error accessing file: " + e.getMessage());
+//            }
+//        }
+//
+//
+//        public Bitmap get(Integer id) {
+//            File pictureFile = new File(storageDir, id.toString());
+//            if (pictureFile.exists()) {
+//                return BitmapFactory.decodeFile(pictureFile.getAbsolutePath());
+//            }
+//            return null;
+//        }
+//    }
 
 }
