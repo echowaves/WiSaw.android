@@ -5,7 +5,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.location.Location;
 import android.media.ExifInterface;
@@ -47,7 +46,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -112,7 +110,6 @@ public class HomeActivity extends AppCompatActivity {
 
 
                 if (error == null) {
-
                     // option 3: navigate to page
                     Intent intent = new Intent(HomeActivity.this, SharingActivity.class);
                     try {
@@ -441,13 +438,15 @@ public class HomeActivity extends AppCompatActivity {
 
                         progressBar.setVisibility(View.INVISIBLE);
 
-
-
+                        JSONObject photo = null;
                         Integer photoId = null;
                         String uploadUrl = null;
+
                         try {
-                            photoId = response.getInt("id");
+                            photo = response.getJSONObject("photo");
+                            photoId = photo.getInt("id");
                             uploadUrl = response.getString("uploadURL");
+
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
@@ -473,6 +472,7 @@ public class HomeActivity extends AppCompatActivity {
                         AndroidNetworking
                                 .put(uploadUrl)
                                 .addFileBody(currentFile)
+                                .setContentType("image/jpeg")
                                 .build()
                                 .getAsJSONObject(new JSONObjectRequestListener() {
                                     @Override

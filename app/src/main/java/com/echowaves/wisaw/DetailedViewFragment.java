@@ -63,7 +63,7 @@ public class DetailedViewFragment extends Fragment {
         imageView = view.findViewById(R.id.imageView);
 
         progressBar = view.findViewById(R.id.progressBar_cyclic);
-        progressBar.bringToFront();
+//        progressBar.bringToFront();
 
 
         try {
@@ -75,11 +75,11 @@ public class DetailedViewFragment extends Fragment {
             uuid = photoJSON.getString("uuid");
 
 
-            String thumbUrl = photosJSON.getJSONObject(index).getString("getThumbUrl");
+            String imgUrl = photosJSON.getJSONObject(index).getString("getImgUrl");
 
 //            imageView.setDefaultImageResId(R.drawable.default);
 //            imageView.setErrorImageResId(R.drawable.error);
-            imageView.setImageUrl(thumbUrl);
+            imageView.setImageUrl(imgUrl);
 
         } catch (JSONException e) {
             e.printStackTrace();
@@ -117,7 +117,6 @@ public class DetailedViewFragment extends Fragment {
                                 AndroidNetworking.post(ApplicationClass.HOST + "/abusereport")
                                         .addJSONObjectBody(parametersJSON)
                                         .setContentType("application/json")
-                                        .setPriority(Priority.HIGH)
                                         .build()
                                         .getAsJSONObject(new JSONObjectRequestListener() {
                                             @Override
@@ -130,7 +129,6 @@ public class DetailedViewFragment extends Fragment {
                                                 progressBar.setVisibility(View.VISIBLE);
                                                 AndroidNetworking.delete(ApplicationClass.HOST + "/photos/" + photoId)
                                                         .setContentType("application/json")
-                                                        .setPriority(Priority.HIGH)
                                                         .build()
                                                         .getAsJSONObject(new JSONObjectRequestListener() {
                                                             @Override
@@ -296,7 +294,7 @@ public class DetailedViewFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-//        progressBar.setVisibility(View.INVISIBLE);
+        progressBar.setVisibility(View.INVISIBLE);
 //
 //        if (!getUserVisibleHint()) {
 ////            progressBar.setVisibility(View.INVISIBLE);
@@ -318,7 +316,6 @@ public class DetailedViewFragment extends Fragment {
 //            imageView.setErrorImageResId(R.drawable.error);
         imageView.setImageUrl(thumbUrl);
         imageView.setImageUrl(imgUrl);
-
 
     }
 
