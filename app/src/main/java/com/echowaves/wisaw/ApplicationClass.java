@@ -19,7 +19,7 @@ import io.branch.referral.Branch;
 
 public class ApplicationClass  extends Application  {
 
-    public static String HOST = "https://testapi.wisaw.com";
+    public static String HOST = "https://api.wisaw.com";
 
 
     @Override
