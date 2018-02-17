@@ -80,8 +80,8 @@
         android:text="{fa-camera}"
         android:textAlignment="center"
         android:gravity="center"
-        android:textSize="30dp"
-
+        android:textSize="40dp"
+        android:textColor="#ff0000"
         />
 
 </RelativeLayout>
