@@ -30,7 +30,7 @@
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
             android:layout_centerVertical="true"
-            android:text="near&amp;today" />
+            android:text="here&amp;now" />
 
         <TextView
             android:id="@+id/uploadCounterButton"
