@@ -29,30 +29,17 @@ public class GridViewAdapter extends ArrayAdapter {
     }
 
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
-        View row = convertView;
-//        ViewHolder holder = null;
-
-//        if (row == null) {
-            LayoutInflater inflater = ((Activity) context).getLayoutInflater();
-            row = inflater.inflate(layoutResourceId, parent, false);
-//            holder = new ViewHolder();
+    public View getView(int position, View row, ViewGroup parent) {
+        LayoutInflater inflater = ((Activity) context).getLayoutInflater();
+        row = inflater.inflate(layoutResourceId, parent, false);
         ANImageView imageView = (ANImageView) row.findViewById(R.id.image);
 
-//            row.setTag(holder);
-//        } else {
-//            holder = (ViewHolder) row.getTag();
-//        }
 
         ImageItem item = imageItems.get(position);
 
         imageView.setImageUrl(item.getImageUrl());
 
-//        holder.image.setImageBitmap(item.getImage());
         return row;
     }
 
-//    static class ViewHolder {
-//        com.androidnetworking.widget.ANImageView image;
-//    }
 }

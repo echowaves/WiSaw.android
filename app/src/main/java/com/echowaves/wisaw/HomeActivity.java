@@ -613,22 +613,6 @@ public class HomeActivity extends AppCompatActivity {
         return imageFile;
     }
 
-
-//    public static Bitmap fromJsonArray(JSONArray array) {
-//        Bitmap bitmap=null;
-//        try {
-//            byte[] tmp = new byte[array.length()];
-//
-//            for (int i = 0; i < array.length(); i++) {
-//                tmp[i] = (byte) (((int) array.get(i)) & 0xFF);
-//            }
-//            bitmap = BitmapFactory.decodeByteArray(tmp, 0, tmp.length);
-//        } catch (JSONException e) {
-////                e.printStackTrace();
-//            }
-//        return bitmap;
-//    }
-
     // Prepare some data for gridview
     private ArrayList<ImageItem> getData() {
         Log.d("++++++++++++++++++++++", "getData()");
@@ -638,17 +622,8 @@ public class HomeActivity extends AppCompatActivity {
 
         if(photosJSON!=null) {
         for (int i = 0; i < photosJSON.length(); i++) {
-
             try {
-//                JSONObject thumbJSON = photosJSON.getJSONObject(i).getJSONObject("thumbNail");
-                String thumbUrl = photosJSON.getJSONObject(i).getString("getThumbUrl");
-
-//                JSONArray dataJSON = thumbJSON.getJSONArray("data");
-
-//                Bitmap bitmap = fromJsonArray(dataJSON);
-
-                imageItems.add(new ImageItem(thumbUrl));
-
+                imageItems.add(new ImageItem(photosJSON.getJSONObject(i), context));
             } catch (JSONException e) {
                 e.printStackTrace();
             }
