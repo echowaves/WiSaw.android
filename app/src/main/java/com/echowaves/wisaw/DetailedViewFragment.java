@@ -166,6 +166,7 @@ public class DetailedViewFragment extends Fragment {
                                 JSONObject parametersJSON = new JSONObject();
                                 try {
                                     parametersJSON.put("uuid", uuid);
+                                    parametersJSON.put("photoId", photoId);
                                 } catch (JSONException e) {
                                     e.printStackTrace();
                                 }

@@ -67,4 +67,38 @@ public class ApplicationClass  extends Application  {
 //        }
 //    }
 
+
+    public static void photoLiked(Integer photoId, Context context) {
+        try {
+                File file = new File(context.getFilesDir(), "wisaw-liked-" + photoId.toString());
+                file.createNewFile();
+            } catch (FileNotFoundException e) {
+                Log.d("++++++++++++++", "File not found: " + e.getMessage());
+            } catch (IOException e) {
+                Log.d("++++++++++++++", "Error accessing file: " + e.getMessage());
+            }
+    }
+
+    public static void photoViewed(Integer photoId, Context context) {
+        try {
+            File file = new File(context.getFilesDir(), "wisaw-viewed-" + photoId.toString());
+            file.createNewFile();
+        } catch (FileNotFoundException e) {
+            Log.d("++++++++++++++", "File not found: " + e.getMessage());
+        } catch (IOException e) {
+            Log.d("++++++++++++++", "Error accessing file: " + e.getMessage());
+        }
+    }
+
+    public static boolean isPhotoLiked(Integer photoId, Context context) {
+        File file = new File(context.getFilesDir(), "wisaw-liked-" + photoId.toString());
+        return file.exists();
+    }
+
+    public static boolean isPhotoViewed(Integer photoId, Context context) {
+        File file = new File(context.getFilesDir(), "wisaw-viewed-" + photoId.toString());
+        return file.exists();
+    }
+
+
 }

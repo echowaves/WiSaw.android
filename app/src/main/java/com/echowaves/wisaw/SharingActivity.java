@@ -78,6 +78,7 @@ public class SharingActivity extends AppCompatActivity {
                                 JSONObject parametersJSON = new JSONObject();
                                 try {
                                     parametersJSON.put("uuid", uuid);
+                                    parametersJSON.put("photoId", photoId);
                                 } catch (JSONException e) {
                                     e.printStackTrace();
                                 }
