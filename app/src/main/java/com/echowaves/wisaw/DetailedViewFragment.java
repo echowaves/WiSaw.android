@@ -60,6 +60,7 @@ public class DetailedViewFragment extends Fragment {
         ViewGroup view = (ViewGroup) inflater.inflate(
                 R.layout.fragment_detailed_view, container, false);
 
+        context = getActivity();
 
         imageView = view.findViewById(R.id.imageView);
 
@@ -76,73 +77,10 @@ public class DetailedViewFragment extends Fragment {
             photoId = photoJSON.getInt("id");
             uuid = photoJSON.getString("uuid");
 
-//            final String thumbUrl = photosJSON.getJSONObject(index).getString("getThumbUrl");
-//            final String imgUrl = photosJSON.getJSONObject(index).getString("getImgUrl");
-//
-////            imageView.setDefaultImageResId(R.drawable.default);
-////            imageView.setErrorImageResId(R.drawable.error);
-//
-//
-//            AndroidNetworking.get(thumbUrl)
-//                    .build()
-//                    .getAsBitmap(new BitmapRequestListener() {
-//                        @Override
-//                        public void onResponse(Bitmap thumbUrlbitmap) {
-//                            // do anything with bitmap
-//                            imageView.setImageBitmap(thumbUrlbitmap);
-//
-//                            AndroidNetworking.get(imgUrl)
-//                                    .build()
-//                                    .getAsBitmap(new BitmapRequestListener() {
-//                                        @Override
-//                                        public void onResponse(Bitmap imgUrlbitmap) {
-//                                            // do anything with bitmap
-//                                            imageView.setImageBitmap(imgUrlbitmap);
-//                                            progressBar.setVisibility(View.INVISIBLE);
-//                                        }
-//                                        @Override
-//                                        public void onError(ANError error) {
-//                                            // handle error
-//                                            System.out.println("Download image error: " + imgUrl + error);
-//                                            progressBar.setVisibility(View.INVISIBLE);
-//                                        }
-//                                    });
-//
-//                        }
-//                        @Override
-//                        public void onError(ANError error) {
-//                            // handle error
-//                            System.out.println("Download image error: " + thumbUrl + error);
-//
-//
-//                            AndroidNetworking.get(imgUrl)
-//                                    .build()
-//                                    .getAsBitmap(new BitmapRequestListener() {
-//                                        @Override
-//                                        public void onResponse(Bitmap imgUrlbitmap) {
-//                                            // do anything with bitmap
-//                                            imageView.setImageBitmap(imgUrlbitmap);
-//                                            progressBar.setVisibility(View.INVISIBLE);
-//                                        }
-//                                        @Override
-//                                        public void onError(ANError error) {
-//                                            // handle error
-//                                            System.out.println("Download image error: " + imgUrl + error);
-//                                            progressBar.setVisibility(View.INVISIBLE);
-//                                        }
-//                                    });
-//
-//
-//                        }
-//                    });
-
-
-
         } catch (JSONException e) {
             e.printStackTrace();
         }
 
-        context = getActivity();
 
         cancelButton = view.findViewById(R.id.btnCancel);
         cancelButton.setOnClickListener(new View.OnClickListener() {
@@ -370,6 +308,7 @@ public class DetailedViewFragment extends Fragment {
             if(imageView.isInitialized()) {
                 return;
             }
+            ApplicationClass.photoViewed(photoId, context);
 
             progressBar.setVisibility(View.VISIBLE);
 
