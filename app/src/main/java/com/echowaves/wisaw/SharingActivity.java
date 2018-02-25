@@ -336,11 +336,8 @@ public class SharingActivity extends AppCompatActivity {
         likeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                try {
-                    DetailedViewFragment.like(photoJson, context);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
+                likeButton.setEnabled(false);
+                DetailedViewFragment.like(photoJson, context, badgeCounter);
             }
         });
 

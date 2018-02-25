@@ -307,11 +307,9 @@ public class DetailedViewFragment extends Fragment {
         likeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                try {
-                    like(photoJSON, getActivity());
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
+
+            likeButton.setEnabled(false);
+            like(photoJSON, context, badgeCounter);
             }
         });
 
@@ -331,14 +329,12 @@ public class DetailedViewFragment extends Fragment {
         return view;
     }
 
-    public static void like(JSONObject photoJSON, final Activity activity) throws JSONException {
-        final TextView badgeCounter = activity.findViewById(R.id.badgeCounter);
-        final TextView likeButton = activity.findViewById(R.id.btnLike);
+    public static void like(JSONObject photoJSON, final Context context, final TextView badgeCounter) {
+//        final TextView badgeCounter = activity.findViewById(R.id.badgeCounter);
 
         try {
 
             final Integer photoId = photoJSON.getInt("id");
-            likeButton.setEnabled(false);
 
             AndroidNetworking.put(ApplicationClass.HOST + "/photos/" + photoId + "/like")
                     .setContentType("application/json")
@@ -347,7 +343,7 @@ public class DetailedViewFragment extends Fragment {
                         @Override
                         public void onResponse(JSONObject response) {
                             // do anything with response
-                            ApplicationClass.photoLiked(photoId, activity);
+                            ApplicationClass.photoLiked(photoId, context);
                             badgeCounter.setText( String.valueOf(Integer.parseInt(badgeCounter.getText().toString()) +1) );
                         }
 
