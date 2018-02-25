@@ -1,13 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
 
     android:id="@+id/activity_sharing"
     tools:context="com.echowaves.wisaw.SharingActivity"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:layout_height="match_parent">
 
     <ProgressBar
         android:id="@+id/progressBar_cyclic"
@@ -72,24 +70,50 @@
     </RelativeLayout>
 
 
-    <com.androidnetworking.widget.ANImageView
+    <com.echowaves.wisaw.TouchImageView
         android:id="@+id/imageView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@+id/relativeLayout2" />
 
     <TextView
-        android:id="@+id/btnShare"
+        android:id="@+id/btnLike"
         android:layout_width="50dp"
         android:layout_height="50dp"
         android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_margin="5sp"
-        android:textAlignment="center"
-        android:gravity="center"
+        android:layout_alignStart="@+id/relativeLayout2"
+        android:layout_marginBottom="11dp"
         android:background="@drawable/round_background"
-        android:text="{fa-share}"
+        android:gravity="center"
+        android:text="{fa-thumbs-up}"
+        android:textAlignment="center"
         android:textSize="30sp" />
+
+    <TextView
+        android:id="@+id/btnShare"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_alignBaseline="@+id/btnLike"
+        android:layout_alignBottom="@+id/btnLike"
+        android:layout_alignEnd="@+id/relativeLayout2"
+        android:background="@drawable/round_background"
+        android:gravity="center"
+        android:text="{fa-share}"
+        android:textAlignment="center"
+        android:textSize="30sp" />
+
+    <TextView
+        android:id="@+id/badgeCounter"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_alignBottom="@+id/btnLike"
+        android:layout_centerHorizontal="true"
+        android:background="@drawable/round_background"
+        android:gravity="center"
+        android:text="0"
+        android:textAlignment="center"
+        android:textSize="20sp"
+        android:visibility="visible" />
 
 
 </RelativeLayout>

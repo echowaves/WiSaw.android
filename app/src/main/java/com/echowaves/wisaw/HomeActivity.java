@@ -124,7 +124,6 @@ public class HomeActivity extends AppCompatActivity {
                         e.printStackTrace();
                     }
 
-
                 } else {
                     Log.i("BRANCH SDK", error.getMessage());
                 }

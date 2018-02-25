@@ -18,7 +18,6 @@ import com.androidnetworking.AndroidNetworking;
 import com.androidnetworking.error.ANError;
 import com.androidnetworking.interfaces.BitmapRequestListener;
 import com.androidnetworking.interfaces.JSONObjectRequestListener;
-import com.androidnetworking.widget.ANImageView;
 import com.eqot.fontawesome.FontAwesome;
 
 import org.json.JSONArray;
@@ -40,6 +39,9 @@ public class DetailedViewFragment extends Fragment {
     TextView reportAbuseButton;
     TextView deleteButton;
     TextView shareButton;
+    TextView likeButton;
+    TextView badgeCounter;
+
     TouchImageView imageView;
 
     Context context;
@@ -50,6 +52,9 @@ public class DetailedViewFragment extends Fragment {
     private JSONObject photoJSON = null;
     private String uuid;
     private Integer photoId;
+    private Integer likes;
+    private String thumbUrl;
+    private String imgUrl;
 
 
     @Override
@@ -70,16 +75,80 @@ public class DetailedViewFragment extends Fragment {
 
 
         try {
-
             photosJSON = HomeActivity.photosJSON;
 
             photoJSON = photosJSON.getJSONObject(index);
             photoId = photoJSON.getInt("id");
             uuid = photoJSON.getString("uuid");
+            likes = photoJSON.getInt("likes");
+            thumbUrl = photoJSON.getString("getThumbUrl");
+            imgUrl = photoJSON.getString("getImgUrl");
+
 
         } catch (JSONException e) {
             e.printStackTrace();
         }
+
+
+
+        progressBar.setVisibility(View.VISIBLE);
+
+//            System.out.println("Downloadubg thumb: " + thumbUrl);
+        AndroidNetworking.get(thumbUrl)
+                .build()
+                .getAsBitmap(new BitmapRequestListener() {
+                    @Override
+                    public void onResponse(Bitmap thumbUrlbitmap) {
+                        // do anything with bitmap
+                        imageView.setImageBitmap(thumbUrlbitmap);
+//                            System.out.println("Downloadubg img: " + imgUrl);
+                        AndroidNetworking.get(imgUrl)
+                                .build()
+                                .getAsBitmap(new BitmapRequestListener() {
+                                    @Override
+                                    public void onResponse(Bitmap imgUrlbitmap) {
+                                        // do anything with bitmap
+                                        progressBar.setVisibility(View.INVISIBLE);
+                                        imageView.setImageBitmap(imgUrlbitmap);
+//                                            imageView.setZoom(1f);
+                                    }
+                                    @Override
+                                    public void onError(ANError error) {
+                                        // handle error
+                                        System.out.println("Download image error: " + imgUrl + error);
+                                        progressBar.setVisibility(View.INVISIBLE);
+                                    }
+                                });
+
+                    }
+                    @Override
+                    public void onError(ANError error) {
+                        // handle error
+                        System.out.println("Download image error: " + thumbUrl + error);
+
+
+                        AndroidNetworking.get(imgUrl)
+                                .build()
+                                .getAsBitmap(new BitmapRequestListener() {
+                                    @Override
+                                    public void onResponse(Bitmap imgUrlbitmap) {
+                                        // do anything with bitmap
+                                        imageView.setImageBitmap(imgUrlbitmap);
+                                        progressBar.setVisibility(View.INVISIBLE);
+                                    }
+                                    @Override
+                                    public void onError(ANError error) {
+                                        // handle error
+                                        System.out.println("Download image error: " + imgUrl + error);
+                                        progressBar.setVisibility(View.INVISIBLE);
+                                    }
+                                });
+
+
+                    }
+                });
+
+
 
 
         cancelButton = view.findViewById(R.id.btnCancel);
@@ -229,10 +298,70 @@ public class DetailedViewFragment extends Fragment {
             }
         });
 
+
+        likeButton = view.findViewById(R.id.btnLike);
+        likeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                try {
+                    like(photoJSON, getActivity());
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+        badgeCounter = view.findViewById(R.id.badgeCounter);
+
+        badgeCounter.setText(likes.toString());
+
+        if(ApplicationClass.isPhotoLiked(photoId, context)) {
+            likeButton.setEnabled(false);
+        } else {
+            likeButton.setEnabled(true);
+        }
+
+
         FontAwesome.applyToAllViews(view.getContext(), view.findViewById(R.id.activity_details));
 
         return view;
     }
+
+    public static void like(JSONObject photoJSON, final Activity activity) throws JSONException {
+        final TextView badgeCounter = activity.findViewById(R.id.badgeCounter);
+        final TextView likeButton = activity.findViewById(R.id.btnLike);
+
+        try {
+
+            final Integer photoId = photoJSON.getInt("id");
+            likeButton.setEnabled(false);
+
+            AndroidNetworking.put(ApplicationClass.HOST + "/photos/" + photoId + "/like")
+                    .setContentType("application/json")
+                    .build()
+                    .getAsJSONObject(new JSONObjectRequestListener() {
+                        @Override
+                        public void onResponse(JSONObject response) {
+                            // do anything with response
+                            ApplicationClass.photoLiked(photoId, activity);
+                            badgeCounter.setText( String.valueOf(Integer.parseInt(badgeCounter.getText().toString()) +1) );
+                        }
+
+                        @Override
+                        public void onError(ANError error) {
+
+                            // handle error
+                            Log.e("++++++++++++++++++++++ ", error.getErrorBody());
+
+                        }
+                    });
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+    }
+
 
     public static void share(JSONObject photoJSON, Activity activity) throws JSONException {
         BranchUniversalObject buo = new BranchUniversalObject()
@@ -297,86 +426,10 @@ public class DetailedViewFragment extends Fragment {
             return;
         }
 
-        try {
-
-            final String thumbUrl = photosJSON.getJSONObject(index).getString("getThumbUrl");
-            final String imgUrl = photosJSON.getJSONObject(index).getString("getImgUrl");
-
-//            imageView.setDefaultImageResId(R.drawable.default);
-//            imageView.setErrorImageResId(R.drawable.error);
-
-            if(imageView.isInitialized()) {
-                return;
-            }
-            ApplicationClass.photoViewed(photoId, context);
-
-            progressBar.setVisibility(View.VISIBLE);
-
-//            System.out.println("Downloadubg thumb: " + thumbUrl);
-            AndroidNetworking.get(thumbUrl)
-                    .build()
-                    .getAsBitmap(new BitmapRequestListener() {
-                        @Override
-                        public void onResponse(Bitmap thumbUrlbitmap) {
-                            // do anything with bitmap
-                            imageView.setImageBitmap(thumbUrlbitmap);
-                            imageView.setZoom(0.9f);
-
-//                            System.out.println("Downloadubg img: " + imgUrl);
-                            AndroidNetworking.get(imgUrl)
-                                    .build()
-                                    .getAsBitmap(new BitmapRequestListener() {
-                                        @Override
-                                        public void onResponse(Bitmap imgUrlbitmap) {
-                                            // do anything with bitmap
-                                            progressBar.setVisibility(View.INVISIBLE);
-                                            imageView.setImageBitmap(imgUrlbitmap);
-                                            imageView.setZoom(1f);
-                                        }
-                                        @Override
-                                        public void onError(ANError error) {
-                                            // handle error
-                                            System.out.println("Download image error: " + imgUrl + error);
-                                            progressBar.setVisibility(View.INVISIBLE);
-                                        }
-                                    });
-
-                        }
-                        @Override
-                        public void onError(ANError error) {
-                            // handle error
-                            System.out.println("Download image error: " + thumbUrl + error);
-
-
-                            AndroidNetworking.get(imgUrl)
-                                    .build()
-                                    .getAsBitmap(new BitmapRequestListener() {
-                                        @Override
-                                        public void onResponse(Bitmap imgUrlbitmap) {
-                                            // do anything with bitmap
-                                            imageView.setImageBitmap(imgUrlbitmap);
-                                            progressBar.setVisibility(View.INVISIBLE);
-                                        }
-                                        @Override
-                                        public void onError(ANError error) {
-                                            // handle error
-                                            System.out.println("Download image error: " + imgUrl + error);
-                                            progressBar.setVisibility(View.INVISIBLE);
-                                        }
-                                    });
-
-
-                        }
-                    });
-
-
-
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-
+//            if(imageView.isInitialized()) {
+//                return;
+//            }
+        ApplicationClass.photoViewed(photoId, context);
     }
 
 

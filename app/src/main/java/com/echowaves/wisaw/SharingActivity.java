@@ -2,6 +2,7 @@ package com.echowaves.wisaw;
 
 import android.app.Activity;
 import android.content.DialogInterface;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -13,12 +14,14 @@ import android.widget.TextView;
 import com.androidnetworking.AndroidNetworking;
 import com.androidnetworking.common.Priority;
 import com.androidnetworking.error.ANError;
+import com.androidnetworking.interfaces.BitmapRequestListener;
 import com.androidnetworking.interfaces.JSONObjectRequestListener;
-import com.androidnetworking.widget.ANImageView;
 import com.eqot.fontawesome.FontAwesome;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.concurrent.Executors;
 
 public class SharingActivity extends AppCompatActivity {
 
@@ -29,7 +32,10 @@ public class SharingActivity extends AppCompatActivity {
     TextView reportAbuseButton;
     TextView deleteButton;
     TextView shareButton;
-    ANImageView imageView;
+    TextView likeButton;
+    TextView badgeCounter;
+
+    TouchImageView imageView;
 
     Activity context;
 
@@ -37,6 +43,9 @@ public class SharingActivity extends AppCompatActivity {
     private JSONObject photoJson;
     private String uuid;
     private Integer photoId;
+    private Integer likes;
+    private String thumbUrl;
+    private String imgUrl;
 
 
     @Override
@@ -187,38 +196,89 @@ public class SharingActivity extends AppCompatActivity {
 
                             }
                         }).show();
-
-
             }
         });
 
 
         progressBar.setVisibility(View.VISIBLE);
-        AndroidNetworking.cancel("download");
+//        AndroidNetworking.cancel("download");
         AndroidNetworking.get(ApplicationClass.HOST + "/photos/" + photoId)
-                .setTag("download")
-//                    .setExecutor(Executors.newSingleThreadExecutor())
+//                .setTag("download")
                 .build()
                 .getAsJSONObject(new JSONObjectRequestListener() {
+
                     @Override
                     public void onResponse(JSONObject response) {
-                        progressBar.setVisibility(View.INVISIBLE);
-
                         // do anything with response
 
                         try {
                             photoJson = response.getJSONObject("photo");
                             uuid = photoJson.getString("uuid");
 
+                            thumbUrl = photoJson.getString("getThumbUrl");
+                            imgUrl = photoJson.getString("getImgUrl");
+                            likes = photoJson.getInt("likes");
 
-                            String thumbUrl = photoJson.getString("getThumbUrl");
-                            String imgUrl = photoJson.getString("getImgUrl");
+                            badgeCounter = findViewById(R.id.badgeCounter);
+                            badgeCounter.setText(likes.toString());
+                            progressBar.setVisibility(View.VISIBLE);
+                            imageView.setVisibility(View.VISIBLE);
+
+                            AndroidNetworking.get(thumbUrl)
+                                    .build()
+                                    .getAsBitmap(new BitmapRequestListener() {
+                                        @Override
+                                        public void onResponse(Bitmap thumbUrlbitmap) {
+                                            // do anything with bitmap
+                                            imageView.setImageBitmap(thumbUrlbitmap);
+                                            AndroidNetworking.get(imgUrl)
+//                                                    .setTag("download")
+                                                    .build()
+                                                    .getAsBitmap(new BitmapRequestListener() {
+                                                        @Override
+                                                        public void onResponse(Bitmap imgUrlbitmap) {
+                                                            // do anything with bitmap
+                                                            progressBar.setVisibility(View.INVISIBLE);
+                                                            imageView.setImageBitmap(imgUrlbitmap);
+//                                                            imageView.setVisibility(View.VISIBLE);
+                                                            ApplicationClass.photoViewed(photoId, context);
+                                                        }
+                                                        @Override
+                                                        public void onError(ANError error) {
+                                                            // handle error
+                                                            System.out.println("Download image error: " + imgUrl + error);
+                                                            progressBar.setVisibility(View.INVISIBLE);
+                                                        }
+                                                    });
+
+                                        }
+                                        @Override
+                                        public void onError(ANError error) {
+                                            // handle error
+                                            System.out.println("Download image error: " + thumbUrl + error);
 
 
-//            imageView.setDefaultImageResId(R.drawable.default);
-//            imageView.setErrorImageResId(R.drawable.error);
-                            imageView.setImageUrl(thumbUrl);
-                            imageView.setImageUrl(imgUrl);
+                                            AndroidNetworking.get(imgUrl)
+                                                    .build()
+                                                    .getAsBitmap(new BitmapRequestListener() {
+                                                        @Override
+                                                        public void onResponse(Bitmap imgUrlbitmap) {
+                                                            // do anything with bitmap
+                                                            imageView.setImageBitmap(imgUrlbitmap);
+                                                            progressBar.setVisibility(View.INVISIBLE);
+                                                        }
+                                                        @Override
+                                                        public void onError(ANError error) {
+                                                            // handle error
+                                                            System.out.println("Download image error: " + imgUrl + error);
+                                                            progressBar.setVisibility(View.INVISIBLE);
+                                                        }
+                                                    });
+
+
+                                        }
+                                    });
+
 
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -228,6 +288,11 @@ public class SharingActivity extends AppCompatActivity {
                         reportAbuseButton.setEnabled(true);
                         deleteButton.setEnabled(true);
                         shareButton.setEnabled(true);
+                        if(ApplicationClass.isPhotoLiked(photoId, context)) {
+                            likeButton.setEnabled(false);
+                        } else {
+                            likeButton.setEnabled(true);
+                        }
 
 
                     }
@@ -266,6 +331,21 @@ public class SharingActivity extends AppCompatActivity {
             }
         });
 
+
+        likeButton = findViewById(R.id.btnLike);
+        likeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                try {
+                    DetailedViewFragment.like(photoJson, context);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+
+
         FontAwesome.applyToAllViews(this, findViewById(R.id.activity_sharing));
 
         progressBar.setVisibility(View.INVISIBLE);
@@ -274,6 +354,7 @@ public class SharingActivity extends AppCompatActivity {
         reportAbuseButton.setEnabled(false);
         deleteButton.setEnabled(false);
         shareButton.setEnabled(false);
+        likeButton.setEnabled(false);
 
     }
 
