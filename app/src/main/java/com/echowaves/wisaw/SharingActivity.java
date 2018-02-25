@@ -222,25 +222,25 @@ public class SharingActivity extends AppCompatActivity {
                             badgeCounter = findViewById(R.id.badgeCounter);
                             badgeCounter.setText(likes.toString());
                             progressBar.setVisibility(View.VISIBLE);
-                            imageView.setVisibility(View.VISIBLE);
+//                            imageView.setVisibility(View.VISIBLE);
 
                             AndroidNetworking.get(thumbUrl)
                                     .build()
                                     .getAsBitmap(new BitmapRequestListener() {
                                         @Override
-                                        public void onResponse(Bitmap thumbUrlbitmap) {
+                                        public void onResponse(Bitmap thumbBitmap) {
                                             // do anything with bitmap
-                                            imageView.setImageBitmap(thumbUrlbitmap);
+                                            imageView.setImageBitmap(thumbBitmap);
+                                            imageView.setZoom(1.0f);
                                             AndroidNetworking.get(imgUrl)
-//                                                    .setTag("download")
                                                     .build()
                                                     .getAsBitmap(new BitmapRequestListener() {
                                                         @Override
-                                                        public void onResponse(Bitmap imgUrlbitmap) {
+                                                        public void onResponse(Bitmap imgBitmap) {
                                                             // do anything with bitmap
                                                             progressBar.setVisibility(View.INVISIBLE);
-                                                            imageView.setImageBitmap(imgUrlbitmap);
-//                                                            imageView.setVisibility(View.VISIBLE);
+                                                            imageView.setImageBitmap(imgBitmap);
+                                                            imageView.setZoom(1.0f);
                                                             ApplicationClass.photoViewed(photoId, context);
                                                         }
                                                         @Override

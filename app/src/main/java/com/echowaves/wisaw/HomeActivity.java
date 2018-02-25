@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.location.Location;
 import android.media.ExifInterface;
@@ -46,6 +47,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -393,7 +395,6 @@ public class HomeActivity extends AppCompatActivity {
         final File currentFile = imageFiles.get(0);
         String imageFilePath =  currentFile.getPath();
 
-//        JSONArray imageJSON = new JSONArray();
         JSONArray coordinatesJSON = new JSONArray();
         JSONObject locationJSON = new JSONObject();
         JSONObject parametersJSON = new JSONObject();
@@ -404,22 +405,6 @@ public class HomeActivity extends AppCompatActivity {
             locationJSON.put("type", "Point");
             locationJSON.put("coordinates", coordinatesJSON);
             parametersJSON.put("location", locationJSON);
-
-//            Bitmap bmp = BitmapFactory.decodeFile(imageFilePath);
-
-//            Bitmap rotatedBitmap = imageOrientation(bmp, imageFilePath);
-
-//            ByteArrayOutputStream bos = new ByteArrayOutputStream();
-//            rotatedBitmap.compress(Bitmap.CompressFormat.JPEG, 70, bos);
-
-//            byte[] bytes = bos.toByteArray();
-
-//            for(int ii=0; ii< bytes.length; ii++) {
-//                imageJSON.put(ii, bytes[ii]);
-//            }
-//
-//
-//            parametersJSON.put("imageData", imageJSON);
 
         } catch (JSONException e) {
             e.printStackTrace();
@@ -458,7 +443,7 @@ public class HomeActivity extends AppCompatActivity {
                         Log.d("++++++++++++++++++++++", "renaming from: " + currentFile.getPath() + " to: " + finalFile.getPath());
 //                        currentFile.renameTo(finalFile);
 
-                        copyFile(currentFile, finalFile);
+                        copyFileRotated(currentFile, finalFile);
 
                         MediaScannerConnection.scanFile(context,
                                 new String[] { finalFile.getPath() }, null,
@@ -470,7 +455,7 @@ public class HomeActivity extends AppCompatActivity {
 
                         AndroidNetworking
                                 .put(uploadUrl)
-                                .addFileBody(currentFile)
+                                .addFileBody(finalFile)
                                 .setContentType("image/jpeg")
                                 .build()
                                 .getAsJSONObject(new JSONObjectRequestListener() {
@@ -515,7 +500,7 @@ public class HomeActivity extends AppCompatActivity {
                             Log.d("++++++++++++++++++++++", "renaming from: " + currentFile.getPath() + " to: " + finalFile.getPath());
 //                        currentFile.renameTo(finalFile);
 
-                            copyFile(currentFile, finalFile);
+                            copyFileRotated(currentFile, finalFile);
 
                             MediaScannerConnection.scanFile(context,
                                     new String[] { finalFile.getPath() }, null,
@@ -533,26 +518,24 @@ public class HomeActivity extends AppCompatActivity {
     }
 
 
-    private static void copyFile(File src, File dst) {
+    private static void copyFileRotated(File src, File dst) {
         try {
-            FileInputStream var2 = new FileInputStream(src);
-            FileOutputStream var3 = new FileOutputStream(dst);
-            byte[] var4 = new byte[1024];
+            Bitmap bmp = BitmapFactory.decodeFile(src.getPath());
+            Bitmap rotatedBitmap = imageOrientation(bmp, src.getPath());
 
-            int var5;
-            while ((var5 = var2.read(var4)) > 0) {
-                var3.write(var4, 0, var5);
-            }
+            ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+            rotatedBitmap.compress(Bitmap.CompressFormat.JPEG, 70, bytes);
 
-            var2.close();
-            var3.close();
+            FileOutputStream fileOutputStream = new FileOutputStream(dst);
+            fileOutputStream.write(bytes.toByteArray());
+
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
 
-    private Bitmap imageOrientation(Bitmap originBitmap, String imageFilePath) {
+    private static Bitmap imageOrientation(Bitmap originBitmap, String imageFilePath) {
         try {
             ExifInterface ei = new ExifInterface(imageFilePath);
             int orientation = ei.getAttributeInt(ExifInterface.TAG_ORIENTATION,

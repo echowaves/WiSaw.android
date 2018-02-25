@@ -101,6 +101,8 @@ public class DetailedViewFragment extends Fragment {
                     public void onResponse(Bitmap thumbUrlbitmap) {
                         // do anything with bitmap
                         imageView.setImageBitmap(thumbUrlbitmap);
+                        imageView.setZoom(1.0f);
+
 //                            System.out.println("Downloadubg img: " + imgUrl);
                         AndroidNetworking.get(imgUrl)
                                 .build()
@@ -110,6 +112,8 @@ public class DetailedViewFragment extends Fragment {
                                         // do anything with bitmap
                                         progressBar.setVisibility(View.INVISIBLE);
                                         imageView.setImageBitmap(imgUrlbitmap);
+                                        imageView.setZoom(1.0f);
+
 //                                            imageView.setZoom(1f);
                                     }
                                     @Override
