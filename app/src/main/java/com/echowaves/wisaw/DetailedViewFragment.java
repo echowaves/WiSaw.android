@@ -191,33 +191,34 @@ public class DetailedViewFragment extends Fragment {
                                             @Override
                                             public void onResponse(JSONObject response) {
                                                 progressBar.setVisibility(View.INVISIBLE);
+                                                getActivity().finish();
 
                                                 // do anything with response
 
 
-                                                progressBar.setVisibility(View.VISIBLE);
-                                                AndroidNetworking.delete(ApplicationClass.HOST + "/photos/" + photoId)
-                                                        .setContentType("application/json")
-                                                        .build()
-                                                        .getAsJSONObject(new JSONObjectRequestListener() {
-                                                            @Override
-                                                            public void onResponse(JSONObject response) {
-                                                                progressBar.setVisibility(View.INVISIBLE);
-
-                                                                // do anything with response
-                                                                getActivity().finish();
-                                                            }
-
-                                                            @Override
-                                                            public void onError(ANError error) {
-                                                                progressBar.setVisibility(View.INVISIBLE);
-
-                                                                // handle error
-                                                                Log.e("++++++++++++++++++++++ ", error.getErrorBody());
-
-                                                            }
-                                                        });
-
+//                                                progressBar.setVisibility(View.VISIBLE);
+//                                                AndroidNetworking.delete(ApplicationClass.HOST + "/photos/" + photoId)
+//                                                        .setContentType("application/json")
+//                                                        .build()
+//                                                        .getAsJSONObject(new JSONObjectRequestListener() {
+//                                                            @Override
+//                                                            public void onResponse(JSONObject response) {
+//                                                                progressBar.setVisibility(View.INVISIBLE);
+//
+//                                                                // do anything with response
+//                                                                getActivity().finish();
+//                                                            }
+//
+//                                                            @Override
+//                                                            public void onError(ANError error) {
+//                                                                progressBar.setVisibility(View.INVISIBLE);
+//
+//                                                                // handle error
+//                                                                Log.e("++++++++++++++++++++++ ", error.getErrorBody());
+//
+//                                                            }
+//                                                        });
+//
 
                                             }
 

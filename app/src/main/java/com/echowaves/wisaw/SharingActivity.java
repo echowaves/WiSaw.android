@@ -96,7 +96,7 @@ public class SharingActivity extends AppCompatActivity {
                                 AndroidNetworking.post(ApplicationClass.HOST + "/abusereport")
                                         .addJSONObjectBody(parametersJSON)
                                         .setContentType("application/json")
-                                        .setPriority(Priority.HIGH)
+//                                        .setPriority(Priority.HIGH)
                                         .build()
                                         .getAsJSONObject(new JSONObjectRequestListener() {
                                             @Override
@@ -104,31 +104,31 @@ public class SharingActivity extends AppCompatActivity {
                                                 progressBar.setVisibility(View.INVISIBLE);
 
                                                 // do anything with response
+                                                finish();
 
-
-                                                progressBar.setVisibility(View.VISIBLE);
-                                                AndroidNetworking.delete(ApplicationClass.HOST + "/photos/" + photoId)
-                                                        .setContentType("application/json")
-                                                        .setPriority(Priority.HIGH)
-                                                        .build()
-                                                        .getAsJSONObject(new JSONObjectRequestListener() {
-                                                            @Override
-                                                            public void onResponse(JSONObject response) {
-                                                                progressBar.setVisibility(View.INVISIBLE);
-
-                                                                // do anything with response
-                                                                finish();
-                                                            }
-
-                                                            @Override
-                                                            public void onError(ANError error) {
-                                                                progressBar.setVisibility(View.INVISIBLE);
-
-                                                                // handle error
-                                                                Log.e("++++++++++++++++++++++ ", error.getErrorBody());
-
-                                                            }
-                                                        });
+//                                                progressBar.setVisibility(View.VISIBLE);
+//                                                AndroidNetworking.delete(ApplicationClass.HOST + "/photos/" + photoId)
+//                                                        .setContentType("application/json")
+//                                                        .setPriority(Priority.HIGH)
+//                                                        .build()
+//                                                        .getAsJSONObject(new JSONObjectRequestListener() {
+//                                                            @Override
+//                                                            public void onResponse(JSONObject response) {
+//                                                                progressBar.setVisibility(View.INVISIBLE);
+//
+//                                                                // do anything with response
+//                                                                finish();
+//                                                            }
+//
+//                                                            @Override
+//                                                            public void onError(ANError error) {
+//                                                                progressBar.setVisibility(View.INVISIBLE);
+//
+//                                                                // handle error
+//                                                                Log.e("++++++++++++++++++++++ ", error.getErrorBody());
+//
+//                                                            }
+//                                                        });
 
 
                                             }
