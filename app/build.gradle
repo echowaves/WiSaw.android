@@ -86,7 +86,6 @@ dependencies {
     compile('io.branch.sdk.android:library:2.+') {
         transitive = true;
     }
-    compile "me.leolin:ShortcutBadger:1.1.21@aar"
 
     // optional
 

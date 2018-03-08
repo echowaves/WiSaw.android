@@ -5,13 +5,14 @@ package com.echowaves.wisaw;
  */
 
 import android.app.Application;
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
+import android.graphics.Color;
+import android.os.Build;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
 import org.json.JSONArray;
@@ -20,14 +21,10 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.List;
 
 import io.branch.referral.Branch;
-import me.leolin.shortcutbadger.ShortcutBadger;
 
-import static com.echowaves.wisaw.ApplicationClass.updateAppBadge;
 
 public class ApplicationClass  extends Application  {
 
@@ -114,9 +111,46 @@ public class ApplicationClass  extends Application  {
                 e.printStackTrace();
             }
         }
-//        does not work on all devices
-        ShortcutBadger.applyCount(context, updates);
 
+        // set badge notification
+
+        NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        String NOTIFICATION_CHANNEL_ID = "my_channel_id_01";
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel notificationChannel = new NotificationChannel(NOTIFICATION_CHANNEL_ID, "wisaw notifications", NotificationManager.IMPORTANCE_HIGH);
+
+            // Configure the notification channel.
+            notificationChannel.setDescription("default wisaw notification channel");
+            notificationChannel.enableLights(true);
+            notificationChannel.setLightColor(Color.RED);
+            notificationChannel.setVibrationPattern(new long[]{0, 1000, 500, 1000});
+            notificationChannel.enableVibration(true);
+            notificationManager.createNotificationChannel(notificationChannel);
+        }
+
+
+        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(context, NOTIFICATION_CHANNEL_ID);
+
+        notificationBuilder
+                .setAutoCancel(true)
+                .setDefaults(Notification.DEFAULT_ALL)
+                .setWhen(System.currentTimeMillis())
+                .setSmallIcon(R.mipmap.ic_launcher_round)
+//                .setTicker("Hearty365")
+//                .setPriority(Notification.PRIORITY_MAX)
+//                .setContentTitle("Default notification")
+                .setContentText("unseen photos: " + updates)
+//                .setContentInfo("Info")
+                ;
+
+        if(updates > 0) {
+            notificationManager.notify(/*notification id*/1, notificationBuilder.build());
+        } else {
+            notificationManager.cancelAll();
+        }
     }
+
+
 
 }
