@@ -663,6 +663,8 @@ public class HomeActivity extends AppCompatActivity {
 
 //                          gridAdapter  = new GridViewAdapter(context, R.layout.grid_item_layout, getData());
 //                            gridView.setAdapter(gridAdapter);
+                            ApplicationClass.updateNewPhotosStatus(photosJSON, context);
+
                             gridAdapter.clear();
                             gridAdapter.addAll(getData());
                             gridAdapter.notifyDataSetChanged();
