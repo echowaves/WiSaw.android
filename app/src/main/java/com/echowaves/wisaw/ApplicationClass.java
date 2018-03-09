@@ -8,6 +8,9 @@ import android.app.Application;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.app.job.JobInfo;
+import android.app.job.JobScheduler;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Color;
@@ -40,6 +43,24 @@ public class ApplicationClass  extends Application  {
 
         // Branch object initialization
         Branch.getAutoInstance(this);
+
+        // schedule job
+
+        ComponentName componentName = new ComponentName(this, BackgroundFetch.class);
+        JobInfo jobInfo = new JobInfo.Builder(12, componentName)
+                .setRequiresCharging(true)
+                .setRequiredNetworkType(JobInfo.NETWORK_TYPE_UNMETERED)
+                .setPeriodic(1000 * 60 * 15) // 15 minutes
+                .build();
+
+        JobScheduler jobScheduler = (JobScheduler)getSystemService(JOB_SCHEDULER_SERVICE);
+        int resultCode = jobScheduler.schedule(jobInfo);
+        if (resultCode == JobScheduler.RESULT_SUCCESS) {
+            Log.d(HOST, "Job scheduled!");
+        } else {
+            Log.d(HOST, "Job not scheduled");
+        }
+
     }
 
 
@@ -97,6 +118,7 @@ public class ApplicationClass  extends Application  {
         }
         updateAppBadge(photosJSON, context);
     }
+
 
     public static void updateAppBadge(JSONArray photosJSON, Context context) {
         int updates = 0;

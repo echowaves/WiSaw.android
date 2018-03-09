@@ -646,7 +646,7 @@ public class HomeActivity extends AppCompatActivity {
         AndroidNetworking.post(ApplicationClass.HOST + "/photos/feed")
                 .addJSONObjectBody(parametersJSON)
                 .setContentType("application/json")
-                .setPriority(Priority.IMMEDIATE)
+//                .setPriority(Priority.IMMEDIATE)
                 .build()
                 .getAsJSONObject(new JSONObjectRequestListener() {
                     @Override
