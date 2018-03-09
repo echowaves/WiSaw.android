@@ -12,7 +12,6 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.androidnetworking.AndroidNetworking;
-import com.androidnetworking.common.Priority;
 import com.androidnetworking.error.ANError;
 import com.androidnetworking.interfaces.BitmapRequestListener;
 import com.androidnetworking.interfaces.JSONObjectRequestListener;
@@ -20,8 +19,6 @@ import com.eqot.fontawesome.FontAwesome;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.util.concurrent.Executors;
 
 public class SharingActivity extends AppCompatActivity {
 
