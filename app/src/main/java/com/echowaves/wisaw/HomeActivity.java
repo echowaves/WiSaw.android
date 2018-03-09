@@ -4,6 +4,7 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
@@ -77,8 +78,6 @@ public class HomeActivity extends AppCompatActivity {
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private GridView gridView;
     private GridViewAdapter gridAdapter;
-
-    private Location mLastLocation;
 
     Context context;
     private File cacheDir;
@@ -221,7 +220,13 @@ public class HomeActivity extends AppCompatActivity {
                                     @Override
                                     public void onLocationUpdated(Location location) {
                                         Log.d("++++++++++++++++++++++", "obtained new location: " + location.toString());
-                                        mLastLocation = location;
+
+                                        SharedPreferences sharedPref = context.getSharedPreferences("wisaw-preferences", Context.MODE_PRIVATE);
+                                        SharedPreferences.Editor editor = sharedPref.edit();
+                                        editor.putString("latitude", String.valueOf(location.getLatitude()));
+                                        editor.putString("longitude", String.valueOf(location.getLongitude()));
+                                        editor.commit();
+
                                         loadImages();
                                     }
 
@@ -364,7 +369,10 @@ public class HomeActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         progressBar.setVisibility(View.INVISIBLE);
 
-        if(this.mLastLocation == null) {
+        SharedPreferences sharedPref = context.getSharedPreferences("wisaw-preferences", Context.MODE_PRIVATE);
+        String latitude = sharedPref.getString("latitude", "");
+
+        if(latitude.equals("")) {
             return;
         }
 
@@ -393,15 +401,19 @@ public class HomeActivity extends AppCompatActivity {
         }
 
         final File currentFile = imageFiles.get(0);
-        String imageFilePath =  currentFile.getPath();
+//        String imageFilePath =  currentFile.getPath();
+
+        SharedPreferences sharedPref = context.getSharedPreferences("wisaw-preferences", Context.MODE_PRIVATE);
+        String latitude = sharedPref.getString("latitude", "");
+        String longitude = sharedPref.getString("longitude", "");
 
         JSONArray coordinatesJSON = new JSONArray();
         JSONObject locationJSON = new JSONObject();
         JSONObject parametersJSON = new JSONObject();
         try {
             parametersJSON.put("uuid", uuid);
-            coordinatesJSON.put(this.mLastLocation.getLatitude());
-            coordinatesJSON.put(this.mLastLocation.getLongitude());
+            coordinatesJSON.put(latitude);
+            coordinatesJSON.put(longitude);
             locationJSON.put("type", "Point");
             locationJSON.put("coordinates", coordinatesJSON);
             parametersJSON.put("location", locationJSON);
@@ -617,7 +629,11 @@ public class HomeActivity extends AppCompatActivity {
 
 
     private void loadImages()  {
-        if(this.mLastLocation == null) {
+        SharedPreferences sharedPref = context.getSharedPreferences("wisaw-preferences", Context.MODE_PRIVATE);
+        String latitude = sharedPref.getString("latitude", "");
+        String longitude = sharedPref.getString("longitude", "");
+
+        if(latitude.equals("")) {
             return;
         }
 
@@ -625,8 +641,8 @@ public class HomeActivity extends AppCompatActivity {
         JSONObject locationJSON = new JSONObject();
         JSONObject parametersJSON = new JSONObject();
         try {
-            coordinatesJSON.put(this.mLastLocation.getLatitude());
-            coordinatesJSON.put(this.mLastLocation.getLongitude());
+            coordinatesJSON.put(latitude);
+            coordinatesJSON.put(longitude);
 
 
             locationJSON.put("type", "Point");

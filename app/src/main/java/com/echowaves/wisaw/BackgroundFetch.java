@@ -3,6 +3,7 @@ package com.echowaves.wisaw;
 import android.app.job.JobParameters;
 import android.app.job.JobService;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.util.Log;
 
 import com.androidnetworking.AndroidNetworking;
@@ -47,7 +48,34 @@ public class BackgroundFetch extends JobService {
             return;
         final Context context = this;
 
+
+        SharedPreferences sharedPref = context.getSharedPreferences("wisaw-preferences", Context.MODE_PRIVATE);
+        String latitude = sharedPref.getString("latitude", "");
+        String longitude = sharedPref.getString("longitude", "");
+
+        if(latitude.equals("")) {
+            return;
+        }
+
+
+
+        JSONArray coordinatesJSON = new JSONArray();
+        JSONObject locationJSON = new JSONObject();
         JSONObject parametersJSON = new JSONObject();
+        try {
+            coordinatesJSON.put(latitude);
+            coordinatesJSON.put(longitude);
+
+
+            locationJSON.put("type", "Point");
+            locationJSON.put("coordinates", coordinatesJSON);
+
+
+            parametersJSON.put("location", locationJSON);
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
 
         AndroidNetworking.post(ApplicationClass.HOST + "/photos/feed")
                 .addJSONObjectBody(parametersJSON)
