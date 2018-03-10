@@ -3,6 +3,7 @@ package com.echowaves.wisaw;
 import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
@@ -19,6 +20,7 @@ import android.provider.MediaStore;
 import android.provider.Settings;
 import android.support.v4.content.FileProvider;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Gravity;
@@ -135,7 +137,11 @@ public class HomeActivity extends AppCompatActivity {
         this.setIntent(intent);
     }
 
-
+    @Override
+    public void onRestart() {
+        super.onRestart();
+        askForLocation();
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -191,62 +197,7 @@ public class HomeActivity extends AppCompatActivity {
         uuid = UUID.nameUUIDFromBytes(androidId.getBytes()).toString();
         Log.d("++++++++++++++++++++++", "uuid: " + uuid);
 
-        Dexter.withActivity(this)
-                .withPermission(Manifest.permission.ACCESS_COARSE_LOCATION)
-                .withListener(new PermissionListener() {
-                    @Override public void onPermissionGranted(PermissionGrantedResponse response) {
-                        /* ... */
-                        Log.d("++++++++++++++++++++++", "onPermissionGranted");
-
-//                        long mLocTrackingInterval = 1000 * 100; // 100 sec
-//                        float trackingDistance = 5000;
-//                        LocationAccuracy trackingAccuracy = LocationAccuracy.LOWEST;
-//
-//                        LocationParams.Builder builder = new LocationParams.Builder()
-//                                .setAccuracy(trackingAccuracy)
-//                                .setDistance(trackingDistance)
-//                                .setInterval(mLocTrackingInterval);
-
-
-                        SmartLocation
-                                .with(context)
-                                .location()
-                                .continuous()
-                                .config(LocationParams.BEST_EFFORT)
-//                                .config(builder.build())
-                                .start(new OnLocationUpdatedListener() {
-                                    @Override
-                                    public void onLocationUpdated(Location location) {
-                                        Log.d("++++++++++++++++++++++", "obtained new location: " + location.toString());
-
-                                        SharedPreferences sharedPref = context.getSharedPreferences("wisaw-preferences", Context.MODE_PRIVATE);
-                                        SharedPreferences.Editor editor = sharedPref.edit();
-                                        editor.putString("latitude", String.valueOf(location.getLatitude()));
-                                        editor.putString("longitude", String.valueOf(location.getLongitude()));
-                                        editor.commit();
-
-                                        loadImages();
-                                    }
-
-                                });
-
-
-
-                    }
-                    @Override public void onPermissionDenied(PermissionDeniedResponse response) {
-                        /* ... */
-                        Log.d("++++++++++++++++++++++", "onPermissionDenied");
-
-                    }
-
-                    @Override
-                    public void onPermissionRationaleShouldBeShown(com.karumi.dexter.listener.PermissionRequest permission, PermissionToken token) {
-                        Log.d("++++++++++++++++++++++", "onPermissionRationaleShouldBeShown");
-
-                    }
-
-                }).check();
-
+        askForLocation();
 
 
         TextView capture = findViewById(R.id.btnCapture);
@@ -345,6 +296,61 @@ public class HomeActivity extends AppCompatActivity {
         animation.setRepeatCount(Animation.INFINITE); // Repeat animation infinitely
         animation.setRepeatMode(Animation.REVERSE); // Reverse animation at the end so the button will fade back in
         uploadCounterButton.startAnimation(animation);
+    }
+
+    private void askForLocation() {
+        Dexter.withActivity(this)
+                .withPermission(Manifest.permission.ACCESS_COARSE_LOCATION)
+                .withListener(new PermissionListener() {
+                    @Override public void onPermissionGranted(PermissionGrantedResponse response) {
+                        /* ... */
+                        Log.d("++++++++++++++++++++++", "onPermissionGranted");
+
+                        SmartLocation
+                                .with(context)
+                                .location()
+                                .continuous()
+                                .config(LocationParams.BEST_EFFORT)
+//                                .config(builder.build())
+                                .start(new OnLocationUpdatedListener() {
+                                    @Override
+                                    public void onLocationUpdated(Location location) {
+                                        Log.d("++++++++++++++++++++++", "obtained new location: " + location.toString());
+
+                                        SharedPreferences sharedPref = context.getSharedPreferences("wisaw-preferences", Context.MODE_PRIVATE);
+                                        SharedPreferences.Editor editor = sharedPref.edit();
+                                        editor.putString("latitude", String.valueOf(location.getLatitude()));
+                                        editor.putString("longitude", String.valueOf(location.getLongitude()));
+                                        editor.commit();
+
+                                        loadImages();
+                                    }
+
+                                });
+
+
+
+                    }
+                    @Override public void onPermissionDenied(PermissionDeniedResponse response) {
+                        /* ... */
+                        Log.d("++++++++++++++++++++++", "onPermissionDenied");
+//                        if (response.isPermanentlyDenied()) {
+                            showAccessDeniedAlert(
+                                    "How am I supposed to show you photos for your location?",
+                                    "Why don't you enable Location in Settings/Permissions and try again?",
+                                    context
+                            );
+//                        }
+
+                    }
+
+                    @Override
+                    public void onPermissionRationaleShouldBeShown(com.karumi.dexter.listener.PermissionRequest permission, PermissionToken token) {
+                        Log.d("++++++++++++++++++++++", "onPermissionRationaleShouldBeShown");
+                        token.continuePermissionRequest();
+                    }
+
+                }).check();
     }
 
 
@@ -732,5 +738,24 @@ public class HomeActivity extends AppCompatActivity {
         return resultList;
     }
 
+    private static void showAccessDeniedAlert(final String title, final String message, final Context context) {
+        final AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setTitle(title);
+        builder.setMessage(message);
+        builder.setCancelable(true);
+
+        builder.setPositiveButton(
+                "Settings",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        context.startActivity(new Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:" + BuildConfig.APPLICATION_ID)));
+                        dialog.dismiss();//
+                    }
+                });
+
+
+        AlertDialog alert = builder.create();
+        alert.show();
+    }
 
 }

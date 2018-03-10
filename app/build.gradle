@@ -36,7 +36,7 @@ android {
     buildToolsVersion "26.0.2"
     defaultConfig {
         applicationId "com.echowaves.wisaw"
-        minSdkVersion 21
+        minSdkVersion 23
         targetSdkVersion 26
         versionCode 45
         versionName "3.4.0"
@@ -73,7 +73,7 @@ dependencies {
 //    compile 'com.squareup.okhttp3:okhttp:3.9.0'
     compile 'com.amitshekhar.android:android-networking:1.0.0'
     compile 'io.nlopez.smartlocation:library:3.3.3'
-    compile 'com.karumi:dexter:4.1.0'
+    compile 'com.karumi:dexter:4.2.0'
     compile 'com.eqot:font-awesome-android:0.1.0'
 
     compile('com.crashlytics.sdk.android:crashlytics:2.9.1@aar') {

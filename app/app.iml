@@ -139,6 +139,7 @@
     <orderEntry type="library" scope="TEST" name="org.hamcrest:hamcrest-core:1.3@jar" level="project" />
     <orderEntry type="library" name="com.android.support:support-compat-26.1.0" level="project" />
     <orderEntry type="library" scope="TEST" name="com.android.support.test.espresso:espresso-core-2.2.2" level="project" />
+    <orderEntry type="library" name="com.karumi:dexter-4.2.0" level="project" />
     <orderEntry type="library" scope="TEST" name="com.android.support.test:rules-0.5" level="project" />
     <orderEntry type="library" name="android.arch.core:common:1.0.0@jar" level="project" />
     <orderEntry type="library" name="com.google.android.gms:play-services-tasks-11.4.2" level="project" />
@@ -160,7 +161,6 @@
     <orderEntry type="library" name="com.google.android.gms:play-services-basement-11.4.2" level="project" />
     <orderEntry type="library" name="com.android.support:support-core-utils-26.1.0" level="project" />
     <orderEntry type="library" name="com.squareup.okhttp3:okhttp:3.6.0@jar" level="project" />
-    <orderEntry type="library" name="com.karumi:dexter-4.1.0" level="project" />
     <orderEntry type="library" name="com.crashlytics.sdk.android:crashlytics-core-2.6.1" level="project" />
     <orderEntry type="library" scope="TEST" name="org.hamcrest:hamcrest-library:1.3@jar" level="project" />
     <orderEntry type="library" name="io.fabric.sdk.android:fabric-1.4.2" level="project" />
