@@ -140,7 +140,7 @@ public class HomeActivity extends AppCompatActivity {
     @Override
     public void onRestart() {
         super.onRestart();
-        askForLocation();
+        configDangerousPermissions();
     }
 
     @Override
@@ -197,87 +197,9 @@ public class HomeActivity extends AppCompatActivity {
         uuid = UUID.nameUUIDFromBytes(androidId.getBytes()).toString();
         Log.d("++++++++++++++++++++++", "uuid: " + uuid);
 
-        askForLocation();
+        configDangerousPermissions();
 
 
-        TextView capture = findViewById(R.id.btnCapture);
-        capture.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-
-                Dexter.withActivity((Activity) context)
-                        .withPermission(Manifest.permission.CAMERA)
-                        .withListener(new PermissionListener() {
-                            @Override public void onPermissionGranted(PermissionGrantedResponse response) {
-                        /* ... */
-                                Log.d("++++++++++++++++++++++", "onPermissionGranted");
-
-
-                                Dexter.withActivity((Activity) context)
-                                        .withPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                                        .withListener(new PermissionListener() {
-                                            @Override public void onPermissionGranted(PermissionGrantedResponse response) {
-                        /* ... */
-                                                Log.d("++++++++++++++++++++++", "onPermissionGranted");
-
-
-                                                Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-//                                                takePictureIntent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-
-
-                                                // Continue only if the File was successfully created
-
-                                                Log.d("mylog", "Photofile not null");
-                                                Uri photoURI = null;
-                                                try {
-                                                    photoURI = FileProvider.getUriForFile(HomeActivity.this,
-                                                            BuildConfig.APPLICATION_ID + ".provider",
-                                                                createImageFile());
-                                                } catch (IOException e) {
-                                                    e.printStackTrace();
-                                                }
-
-                                                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
-
-                                                startActivityForResult(takePictureIntent, CAMERA_REQUEST);
-
-
-
-                                            }
-                                            @Override public void onPermissionDenied(PermissionDeniedResponse response) {
-                        /* ... */
-                                                Log.d("++++++++++++++++++++++", "onPermissionDenied");
-
-                                            }
-
-                                            @Override
-                                            public void onPermissionRationaleShouldBeShown(com.karumi.dexter.listener.PermissionRequest permission, PermissionToken token) {
-                                                Log.d("++++++++++++++++++++++", "onPermissionRationaleShouldBeShown");
-
-                                            }
-
-                                        }).check();
-
-
-
-
-
-
-                            }
-                            @Override public void onPermissionDenied(PermissionDeniedResponse response) {
-                        /* ... */
-                                Log.d("++++++++++++++++++++++", "onPermissionDenied");
-
-                            }
-
-                            @Override
-                            public void onPermissionRationaleShouldBeShown(com.karumi.dexter.listener.PermissionRequest permission, PermissionToken token) {
-                                Log.d("++++++++++++++++++++++", "onPermissionRationaleShouldBeShown");
-
-                            }
-
-                        }).check();
-            }
-        });
 
         mSwipeRefreshLayout = findViewById(R.id.activity_main_swipe_refresh_layout);
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
@@ -298,7 +220,7 @@ public class HomeActivity extends AppCompatActivity {
         uploadCounterButton.startAnimation(animation);
     }
 
-    private void askForLocation() {
+    private void configDangerousPermissions() {
         Dexter.withActivity(this)
                 .withPermission(Manifest.permission.ACCESS_COARSE_LOCATION)
                 .withListener(new PermissionListener() {
@@ -334,14 +256,11 @@ public class HomeActivity extends AppCompatActivity {
                     @Override public void onPermissionDenied(PermissionDeniedResponse response) {
                         /* ... */
                         Log.d("++++++++++++++++++++++", "onPermissionDenied");
-//                        if (response.isPermanentlyDenied()) {
                             showAccessDeniedAlert(
                                     "How am I supposed to show you photos for your location?",
                                     "Why don't you enable Location in Settings/Permissions and try again?",
                                     context
                             );
-//                        }
-
                     }
 
                     @Override
@@ -351,6 +270,94 @@ public class HomeActivity extends AppCompatActivity {
                     }
 
                 }).check();
+
+
+        TextView capture = findViewById(R.id.btnCapture);
+        capture.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+
+                Dexter.withActivity((Activity) context)
+                        .withPermission(Manifest.permission.CAMERA)
+                        .withListener(new PermissionListener() {
+                            @Override public void onPermissionGranted(PermissionGrantedResponse response) {
+                        /* ... */
+                                Log.d("++++++++++++++++++++++", "onPermissionGranted");
+
+
+                                Dexter.withActivity((Activity) context)
+                                        .withPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                                        .withListener(new PermissionListener() {
+                                            @Override public void onPermissionGranted(PermissionGrantedResponse response) {
+                        /* ... */
+                                                Log.d("++++++++++++++++++++++", "onPermissionGranted");
+
+
+                                                Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+//                                                takePictureIntent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+
+
+                                                // Continue only if the File was successfully created
+
+                                                Log.d("mylog", "Photofile not null");
+                                                Uri photoURI = null;
+                                                try {
+                                                    photoURI = FileProvider.getUriForFile(HomeActivity.this,
+                                                            BuildConfig.APPLICATION_ID + ".provider",
+                                                            createImageFile());
+                                                } catch (IOException e) {
+                                                    e.printStackTrace();
+                                                }
+
+                                                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
+
+                                                startActivityForResult(takePictureIntent, CAMERA_REQUEST);
+
+
+
+                                            }
+                                            @Override public void onPermissionDenied(PermissionDeniedResponse response) {
+                        /* ... */
+                                                Log.d("++++++++++++++++++++++", "onPermissionDenied");
+                                                showAccessDeniedAlert(
+                                                        "How am I supposed to save your photo?",
+                                                        "Why don't you enable Storage in Settings/Permissions and try again?",
+                                                        context
+                                                );
+
+                                            }
+
+                                            @Override
+                                            public void onPermissionRationaleShouldBeShown(com.karumi.dexter.listener.PermissionRequest permission, PermissionToken token) {
+                                                Log.d("++++++++++++++++++++++", "onPermissionRationaleShouldBeShown");
+                                                token.continuePermissionRequest();
+
+                                            }
+
+                                        }).check();
+
+
+
+                            }
+                            @Override public void onPermissionDenied(PermissionDeniedResponse response) {
+                        /* ... */
+                                Log.d("++++++++++++++++++++++", "onPermissionDenied");
+                                showAccessDeniedAlert(
+                                        "How am I supposed to take your photos?",
+                                        "Why don't you enable Camera in Settings/Permissions and try again?",
+                                        context
+                                );
+                            }
+
+                            @Override
+                            public void onPermissionRationaleShouldBeShown(com.karumi.dexter.listener.PermissionRequest permission, PermissionToken token) {
+                                Log.d("++++++++++++++++++++++", "onPermissionRationaleShouldBeShown");
+                                token.continuePermissionRequest();
+                            }
+
+                        }).check();
+            }
+        });
+
     }
 
 
