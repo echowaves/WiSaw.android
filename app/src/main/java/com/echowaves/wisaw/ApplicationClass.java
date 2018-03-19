@@ -50,7 +50,7 @@ public class ApplicationClass  extends Application  {
         JobInfo jobInfo = new JobInfo.Builder(12, componentName)
                 .setRequiresCharging(true)
                 .setRequiredNetworkType(JobInfo.NETWORK_TYPE_UNMETERED)
-                .setPeriodic(1000 * 60 * 15) // 15 minutes
+                .setPeriodic(1000 * 60 * 60 * 12) // 12 hours
                 .build();
 
         JobScheduler jobScheduler = (JobScheduler)getSystemService(JOB_SCHEDULER_SERVICE);
