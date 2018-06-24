@@ -37,9 +37,9 @@ android {
     defaultConfig {
         applicationId "com.echowaves.wisaw"
         minSdkVersion 23
-        targetSdkVersion 23
-        versionCode 52
-        versionName "3.4.5"
+        targetSdkVersion 26
+        versionCode 54
+        versionName "3.5.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
     }
